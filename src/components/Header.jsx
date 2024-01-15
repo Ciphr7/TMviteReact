@@ -1,0 +1,22 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+
+const Header = ({ title }) => {
+  return (
+    <header className=" text-white p-2 text-center text-bg-danger">
+      <h1>
+        {title} <span >&reg;</span>
+      </h1>
+    </header>
+  );
+};
+
+Header.defaultProps = {
+  title: 'default title',
+};
+
+Header.propTypes = {
+  title: PropTypes.string.isRequired,
+};
+
+export default Header;

@@ -1,0 +1,34 @@
+
+
+
+html, body {
+  height: calc(var(--vh, 1vh) * 100);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.app-container {
+  height: 100%;
+}
+
+#main {
+  text-align: left;
+  background: rgb(1, 31, 41);
+  -webkit-flex: 1 1;
+  flex: 1 1;
+  height: calc(var(--vh, 1vh) * 90);
+ 
+}
+
+.wrapper {
+  display: -webkit-flex; 
+  display: flex; 
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  text-align: center;
+
+  height: calc(var(--vh, 1vh) * 100);
+}
+

@@ -13,7 +13,7 @@ const Footer = () => {
         const content = renderToString(
           <div>
             <p>TruckMiles Trip Planner</p>
-            <img src="src/images/tmLogo.png" alt="Your Image" width="50" />
+            <img src="src/images/tmLogo.png" alt="Your Image" width="50%" />
           </div>
         );
 

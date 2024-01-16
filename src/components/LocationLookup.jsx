@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import MySelect from './RouteOptions';
 import vTruck from '../images/truck.png';
-
+import RouteOptions from "./RouteOptions"
 class LocationLookup extends Component {
   constructor(props) {
     super(props);
@@ -23,7 +22,7 @@ class LocationLookup extends Component {
           const { latitude, longitude } = position.coords;
           this.setState({
             locationValue: `${latitude}:${longitude}`,
-            suggestions: [`${latitude}:${longitude}`]
+            suggestions: [`${latitude}:${longitude}`],
           });
         },
         (error) => {
@@ -90,10 +89,16 @@ class LocationLookup extends Component {
   };
 
   handleSelect = (selectedValue) => {
-    this.setState({ locationValue: selectedValue, suggestions: [selectedValue] });
+    this.setState({
+      locationValue: selectedValue,
+      suggestions: [selectedValue],
+    });
   };
   handleSelect2 = (selectedValue2) => {
-    this.setState({ loc2Value: selectedValue2, suggestions2: [selectedValue2]});
+    this.setState({
+      loc2Value: selectedValue2,
+      suggestions2: [selectedValue2],
+    });
   };
 
   // Function to handle checkbox change
@@ -103,26 +108,31 @@ class LocationLookup extends Component {
 
     // Set the input value based on the checkbox state
     if (isChecked) {
-      this.setState({ locationValue: null, suggestions: []  });
+      this.setState({ locationValue: null, suggestions: [] });
     } else {
       this.getGeolocation();
     }
   };
 
   render() {
-    const { isChecked, locationValue,loc2Value,suggestions, suggestions2 } = this.state;
+    const { isChecked, locationValue, loc2Value, suggestions, suggestions2 } =
+      this.state;
 
     return (
       <>
-        <label className="block">
-          <div className='flex bg-red-600 w-60 rounded-sm m-1 p-1'>
+      <div className="text-bg-dark p-2 text-center" >
+        <label className="block text-bg-dark">
+          <div className="flex  w-60 rounded-sm m-1 p-1">
+          
             <input
-              className=" checked:bg-blue-500 w-10 h-5 "
+              className="checked: w-10 h-5"
               type="checkbox"
               checked={isChecked}
               onChange={this.handleCheckboxChange}
             />
-            <span className="block text-sm font-sm text-white">Start at my GPS Location</span>
+            <span className="block text-sm font-sm text-white">
+              Start at my GPS Location
+            </span>
           </div>
         </label>
 
@@ -130,7 +140,7 @@ class LocationLookup extends Component {
 
         <label>
           <input
-            className='searchBox p-1 m-2'
+            className="searchBox p-1 m-2"
             type="text"
             value={locationValue === null ? '' : locationValue}
             onChange={this.handleInputChange}
@@ -138,7 +148,7 @@ class LocationLookup extends Component {
           />
         </label>
 
-        <ul className="text-3 text-white p-2 text-center font-bold bg-red-600">
+        <ul className="text-3 text-bg-danger p-2  font-bold bg-red-600">
           {suggestions.map((suggestion, index) => (
             <li key={index} onClick={() => this.handleSelect(suggestion)}>
               {suggestion}
@@ -148,7 +158,7 @@ class LocationLookup extends Component {
 
         <label>
           <input
-            className='searchBox p-1 m-2'
+            className="searchBox p-1 m-2"
             type="text"
             value={loc2Value === null ? '' : loc2Value}
             onChange={this.handleInputChange2}
@@ -156,31 +166,33 @@ class LocationLookup extends Component {
           />
         </label>
 
-        <ul className="text-3 text-white p-2 text-center font-bold bg-red-600">
+        <ul className="text-3 text-bg-danger p-2 text-center font-bold bg-red-600">
           {suggestions2.map((suggestion2, index) => (
             <li key={index} onClick={() => this.handleSelect2(suggestion2)}>
               {suggestion2}
             </li>
           ))}
         </ul>
+        <RouteOptions />
 
-        <MySelect />
-
-        <div className='flex bg-red-600 w-60 rounded-sm m-1 p-1'>
-          <input type="checkbox" className=" checked:bg-blue-500 w-10 h-5 " />
-          <span className="block text-sm font-sm text-white w-40">Close Borders</span>
+        <div className="flex  w-60 rounded-sm m-1 p-1">
+          <input type="checkbox" className="checked:bg-blue-500 w-10 h-5" />
+          <span className="block text-sm font-sm text-white w-40">
+            Close Borders
+          </span>
         </div>
 
-        <div className='flex bg-red-600 rounded-sm w-60 m-1 p-1'>
-          <input type="checkbox" className=" checked:bg-blue-500 w-10 h-5 " />
-          <span className="block text-sm font-sm text-white ">Avoid Toll</span>
+        <div className="flex  rounded-sm w-60 m-1 p-1">
+          <input type="checkbox" className="checked:bg-blue-500 w-10 h-5" />
+          <span className="block text-sm font-sm text-white">Avoid Toll</span>
         </div>
 
         <img
-          className=' w-54 h-24 pt-3 m-2'
-          alt='TurckMiles Logo'
+          className="w-54 h-24 pt-3 m-2"
+          alt="TurckMiles Logo"
           src={vTruck}
         />
+        </div>
       </>
     );
   }

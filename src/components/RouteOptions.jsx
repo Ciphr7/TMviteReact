@@ -8,12 +8,12 @@ const RtOptions = [
   ]
   
   const MySelect = () => (
-    <Select  options={RtOptions} />
+    <Select   options={RtOptions} />
   )
 
   export default () => (
     <Select 
-    className= "w-60 "
+    className= " w-60 "
     options={RtOptions}
       defaultValue={RtOptions[0]}
       

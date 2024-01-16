@@ -1,6 +1,8 @@
-import React, { useRef, useEffect } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { renderToString } from 'react-dom/server';
+import React, { useRef, useEffect } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { renderToString } from "react-dom/server";
+
+import LocationLookup from "./LocationLookup";
 
 const Footer = () => {
   // Create a ref to store the reference to the button element
@@ -8,39 +10,36 @@ const Footer = () => {
 
   // Initialize the popover using useEffect
   useEffect(() => {
-    if (buttonRef.current) {
-      import('bootstrap/dist/js/bootstrap.bundle.min.js').then((bootstrap) => {
-        const content = renderToString(
-          <div>
-            <p>TruckMiles Trip Planner</p>
-            <img src="src/images/tmLogo.png" alt="Your Image" width="50%" />
-          </div>
-        );
-
-        const popover = new bootstrap.Popover(buttonRef.current, {
-          content: () => content, // Use a function for dynamic content
-          placement: 'top',
-          html: true, // Enable HTML in popover content
-        });
-
-        return () => {
-          popover.dispose();
-        };
-      });
-    }
+    
   }, []);
 
   return (
     <footer className="text-bg-dark p-2 text-center">
-      <button
-        ref={buttonRef}
-        type="button"
-        className="btn btn-primary"
-        data-bs-toggle="popover"
-        title="TruckMiles Trip Planner"
-      >
-        New Trip
-      </button>
+     
+<button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+  New Trip
+</button>
+
+
+<div  className="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div className="modal-dialog">
+    <div className="modal-content">
+      <div className="modal-header">
+        <h1 className="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div className="modal-body">
+        <LocationLookup />
+
+      </div>
+      <div className="modal-footer">
+        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" className="btn btn-danger">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+     
 
       <p>ProMiles Software Development Corp </p>
       <p>Copyright &copy; 2022 </p>

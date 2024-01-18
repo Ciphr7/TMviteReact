@@ -1,3 +1,5 @@
+@import '@radix-ui/colors/black-alpha.css';
+@import '@radix-ui/colors/violet.css';
 .custom-checkbox .custom-control-input:checked + .custom-control-label::before,
 .custom-radio .custom-control-input:checked + .custom-control-label::before {
   background-color: #dc3545; /* Set background color to danger */
@@ -7,4 +9,38 @@
 .custom-checkbox .custom-control-label,
 .custom-radio .custom-control-label {
   color: white; /* Set text color to white */
+}
+
+
+
+/* reset */
+button {
+  all: unset;
+}
+
+.CheckboxRoot {
+  background-color: white;
+  width: 15px;
+  height: 15px;
+  border-radius: 2px;
+  
+
+  box-shadow: 0 2px 10px var(--black-a7);
+}
+.CheckboxRoot:hover {
+  background-color: var(--violet-3);
+}
+.CheckboxRoot:focus {
+  box-shadow: 0 0 0 2px rgb(233, 84, 84);
+}
+
+.CheckboxIndicator {
+  color: var(--violet-11);
+}
+
+.Label {
+  color: white;
+  padding-left: 15px;
+  font-size: 15px;
+  line-height: 1;
 }

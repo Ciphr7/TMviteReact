@@ -1,6 +1,28 @@
 import React from 'react';
 import Select from 'react-select';
 
+const customStyles = {
+  control: (provided, state) => ({
+    ...provided,
+    backgroundColor: 'white', // Change background color
+    borderColor: state.isFocused ? 'red' : 'red', // Change border color
+    ':hover': {
+      backgroundColor: 'lightred', // Change hover-over color
+      boxShadow: state.isFocused ? '0 0 0 2px red' : 'none',
+    },
+
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isSelected ? 'red' : 'white', // Change option background color when selected
+    color: state.isSelected ? 'white' : 'black', // Change option text color when selected
+    ':hover': {
+      backgroundColor: 'lightred', // Change hover-over color
+    },
+  }),
+  // Add more styles as needed
+};
+
 const RtOptions = [
   { value: 'practical', label: 'Practical' },
   { value: 'shortest', label: 'Shortest' },
@@ -11,8 +33,9 @@ const RtOptions = [
 
 const MySelect = () => (
   <Select
-    className="w-60"
+    className="w-90 p-2"
     options={RtOptions}
+    styles={customStyles}
     defaultValue={RtOptions[0]}
   />
 );

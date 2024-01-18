@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import vTruck from "../images/truck.png";
-
+import * as Checkbox from "@radix-ui/react-checkbox";
+import { CheckIcon } from "@radix-ui/react-icons";
 
 import "./LocationLookup.css";
 import MySelect from "./RouteOptions";
@@ -124,24 +125,36 @@ class LocationLookup extends Component {
 
     return (
       <>
-        <div className="text-bg-dark p-2 text-center">
-        <label className="block">
-          <div className='flex bg-red-600 w-60 rounded-sm m-1 p-1'>
-            <input
-              className=" checked:bg-blue-500 w-10 h-5 "
-              type="checkbox"
-              checked={isChecked}
-              onChange={this.handleCheckboxChange}
-            />
-            <span className="block text-sm font-sm text-white">Start at my GPS Location</span>
-          </div>
-        </label>
+        <div className="bg-black p-2  text-center">
+          <label className="flex justify-center">
+            <div className="  bg-red-500 w-60 rounded-sm m-1 p-1">
+         
+          <form>
+            <div >
+            <Checkbox.Root
+          className="CheckboxRoot"
+          checked={!isChecked}
+          onChange={this.handleCheckboxChange}
+          id="c1"
+        >
+              <Checkbox.Root className="CheckboxRoot"  id="c1">
+                <Checkbox.Indicator className="CheckboxIndicator">
+                  <CheckIcon />
+                </Checkbox.Indicator>
+                </Checkbox.Root>
+              </Checkbox.Root>
+              <label className="Label" htmlFor="c1">
+              Start at my GPS Location
+              </label>
+            </div>
+          </form>
+            </div>
+          </label>
 
-          <br />
 
           <label>
             <input
-              className="searchBox p-1 m-2"
+              className="searchBox px-1 my-2 bg-white w-80  "
               type="text"
               value={locationValue === null ? "" : locationValue}
               onChange={this.handleInputChange}
@@ -149,7 +162,7 @@ class LocationLookup extends Component {
             />
           </label>
 
-          <ul className="text-3 text-bg-danger p-2  font-bold bg-red-600">
+          <ul className="text-3 text-white p-2    font-bold bg-red-500">
             {suggestions.map((suggestion, index) => (
               <li key={index} onClick={() => this.handleSelect(suggestion)}>
                 {suggestion}
@@ -159,7 +172,7 @@ class LocationLookup extends Component {
 
           <label>
             <input
-              className="searchBox p-1 m-2"
+              className="searchBox px-1 my-2 w-80 bg-white"
               type="text"
               value={loc2Value === null ? "" : loc2Value}
               onChange={this.handleInputChange2}
@@ -167,7 +180,7 @@ class LocationLookup extends Component {
             />
           </label>
 
-          <ul className="text-3 text-bg-danger p-2 text-center font-bold bg-red-600">
+          <ul className=" text-3 text-white p-2    font-bold bg-red-500">
             {suggestions2.map((suggestion2, index) => (
               <li key={index} onClick={() => this.handleSelect2(suggestion2)}>
                 {suggestion2}
@@ -176,17 +189,23 @@ class LocationLookup extends Component {
           </ul>
 
           <MySelect />
-          <div className='flex bg-red-600 w-60 rounded-sm m-1 p-1'>
-          <input type="checkbox" className=" checked:bg-dark-500 w-10 h-5 " />
-          <span className="block text-sm font-sm text-white w-40">Close Borders</span>
-        </div>
 
-        <div className='flex bg-red-600 rounded-sm w-60 m-1 p-1'>
-          <input type="checkbox" className=" checked:bg-black-500 w-10 h-5 " />
-          <span className="block text-sm font-sm text-white ">Avoid Toll</span>
-        </div>
-         
-         
+          <div className="flex bg-red-500  rounded-sm m-1 p-1">
+            <input type="checkbox" className=" checked:bg-dark-500 w-10 h-5 " />
+            <span className="block text-sm font-sm text-white w-40">
+              Close Borders
+            </span>
+          </div>
+
+          <div className="bg-red-500 rounded-sm  m-1 p-1">
+            <input
+              type="checkbox"
+              className=" checked:bg-black-500 w-10 h-5 "
+            />
+            <span className="block text-sm font-sm text-white ">
+              Avoid Toll
+            </span>
+          </div>
 
           <img
             className="w-54 h-24 pt-3 m-2"

@@ -1,0 +1,10 @@
+.custom-checkbox .custom-control-input:checked + .custom-control-label::before,
+.custom-radio .custom-control-input:checked + .custom-control-label::before {
+  background-color: #dc3545; /* Set background color to danger */
+  border-color: #dc3545; /* Set border color to danger */
+}
+
+.custom-checkbox .custom-control-label,
+.custom-radio .custom-control-label {
+  color: white; /* Set text color to white */
+}

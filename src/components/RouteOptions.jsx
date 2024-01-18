@@ -1,22 +1,20 @@
-import React, {Component} from 'react'
-import Select from 'react-select'
+import React from 'react';
+import Select from 'react-select';
 
 const RtOptions = [
-    { value: 'practical', label: 'Practical' },
-    { value: 'shortest', label: 'Shortest' },
-    { value: 'interstate', label: 'Interstate' }
-  ]
-  
-  const MySelect = () => (
-    <Select   options={RtOptions} />
-  )
+  { value: 'practical', label: 'Practical' },
+  { value: 'shortest', label: 'Shortest' },
+  { value: 'interstate', label: 'Interstate' }
+];
 
-  export default () => (
-    <Select 
-    className= " w-60 "
+
+
+const MySelect = () => (
+  <Select
+    className="w-60"
     options={RtOptions}
-      defaultValue={RtOptions[0]}
-      
-    />
-  );
-  
+    defaultValue={RtOptions[0]}
+  />
+);
+
+export default MySelect;

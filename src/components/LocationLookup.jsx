@@ -1,6 +1,10 @@
-import React, { Component } from 'react';
-import vTruck from '../images/truck.png';
-import RouteOptions from "./RouteOptions"
+import React, { Component } from "react";
+import vTruck from "../images/truck.png";
+
+
+import "./LocationLookup.css";
+import MySelect from "./RouteOptions";
+
 class LocationLookup extends Component {
   constructor(props) {
     super(props);
@@ -26,12 +30,12 @@ class LocationLookup extends Component {
           });
         },
         (error) => {
-          console.error('Error getting geolocation:', error);
+          console.error("Error getting geolocation:", error);
           this.setState({ locationValue: null });
         }
       );
     } else {
-      console.error('Geolocation is not supported in this browser.');
+      console.error("Geolocation is not supported in this browser.");
       this.setState({ locationValue: null });
     }
   };
@@ -40,7 +44,7 @@ class LocationLookup extends Component {
     const { locationValue } = this.state;
 
     fetch(
-      `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${locationValue}&apikey=${'bU03MSs2UjZIS21HMG5QSlIxUTB4QT090'}`
+      `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${locationValue}&apikey=${"bU03MSs2UjZIS21HMG5QSlIxUTB4QT090"}`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -50,7 +54,7 @@ class LocationLookup extends Component {
         this.setState({ suggestions });
       })
       .catch((error) => {
-        console.error('Error fetching suggestions:', error);
+        console.error("Error fetching suggestions:", error);
       });
   };
 
@@ -58,7 +62,7 @@ class LocationLookup extends Component {
     const { loc2Value } = this.state;
 
     fetch(
-      `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${loc2Value}&apikey=${'bU03MSs2UjZIS21HMG5QSlIxUTB4QT090'}`
+      `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${loc2Value}&apikey=${"bU03MSs2UjZIS21HMG5QSlIxUTB4QT090"}`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -68,7 +72,7 @@ class LocationLookup extends Component {
         this.setState({ suggestions2 });
       })
       .catch((error) => {
-        console.error('Error fetching suggestions2:', error);
+        console.error("Error fetching suggestions2:", error);
       });
   };
 
@@ -120,78 +124,75 @@ class LocationLookup extends Component {
 
     return (
       <>
-      <div className="text-bg-dark p-2 text-center" >
-        <label className="block text-bg-dark">
-          <div className="flex  w-60 rounded-sm m-1 p-1">
-          
+        <div className="text-bg-dark p-2 text-center">
+        <label className="block">
+          <div className='flex bg-red-600 w-60 rounded-sm m-1 p-1'>
             <input
-              className="checked: w-10 h-5"
+              className=" checked:bg-blue-500 w-10 h-5 "
               type="checkbox"
               checked={isChecked}
               onChange={this.handleCheckboxChange}
             />
-            <span className="block text-sm font-sm text-white">
-              Start at my GPS Location
-            </span>
+            <span className="block text-sm font-sm text-white">Start at my GPS Location</span>
           </div>
         </label>
 
-        <br />
+          <br />
 
-        <label>
-          <input
-            className="searchBox p-1 m-2"
-            type="text"
-            value={locationValue === null ? '' : locationValue}
-            onChange={this.handleInputChange}
-            placeholder="Search for Location"
-          />
-        </label>
+          <label>
+            <input
+              className="searchBox p-1 m-2"
+              type="text"
+              value={locationValue === null ? "" : locationValue}
+              onChange={this.handleInputChange}
+              placeholder="Search for Location"
+            />
+          </label>
 
-        <ul className="text-3 text-bg-danger p-2  font-bold bg-red-600">
-          {suggestions.map((suggestion, index) => (
-            <li key={index} onClick={() => this.handleSelect(suggestion)}>
-              {suggestion}
-            </li>
-          ))}
-        </ul>
+          <ul className="text-3 text-bg-danger p-2  font-bold bg-red-600">
+            {suggestions.map((suggestion, index) => (
+              <li key={index} onClick={() => this.handleSelect(suggestion)}>
+                {suggestion}
+              </li>
+            ))}
+          </ul>
 
-        <label>
-          <input
-            className="searchBox p-1 m-2"
-            type="text"
-            value={loc2Value === null ? '' : loc2Value}
-            onChange={this.handleInputChange2}
-            placeholder="Search for Location"
-          />
-        </label>
+          <label>
+            <input
+              className="searchBox p-1 m-2"
+              type="text"
+              value={loc2Value === null ? "" : loc2Value}
+              onChange={this.handleInputChange2}
+              placeholder="Search for Location"
+            />
+          </label>
 
-        <ul className="text-3 text-bg-danger p-2 text-center font-bold bg-red-600">
-          {suggestions2.map((suggestion2, index) => (
-            <li key={index} onClick={() => this.handleSelect2(suggestion2)}>
-              {suggestion2}
-            </li>
-          ))}
-        </ul>
-        <RouteOptions />
+          <ul className="text-3 text-bg-danger p-2 text-center font-bold bg-red-600">
+            {suggestions2.map((suggestion2, index) => (
+              <li key={index} onClick={() => this.handleSelect2(suggestion2)}>
+                {suggestion2}
+              </li>
+            ))}
+          </ul>
 
-        <div className="flex  w-60 rounded-sm m-1 p-1">
-          <input type="checkbox" className="checked:bg-blue-500 w-10 h-5" />
-          <span className="block text-sm font-sm text-white w-40">
-            Close Borders
-          </span>
+          <MySelect />
+          <div className='flex bg-red-600 w-60 rounded-sm m-1 p-1'>
+          <input type="checkbox" className=" checked:bg-dark-500 w-10 h-5 " />
+          <span className="block text-sm font-sm text-white w-40">Close Borders</span>
         </div>
 
-        <div className="flex  rounded-sm w-60 m-1 p-1">
-          <input type="checkbox" className="checked:bg-blue-500 w-10 h-5" />
-          <span className="block text-sm font-sm text-white">Avoid Toll</span>
+        <div className='flex bg-red-600 rounded-sm w-60 m-1 p-1'>
+          <input type="checkbox" className=" checked:bg-black-500 w-10 h-5 " />
+          <span className="block text-sm font-sm text-white ">Avoid Toll</span>
         </div>
+         
+         
 
-        <img
-          className="w-54 h-24 pt-3 m-2"
-          alt="TurckMiles Logo"
-          src={vTruck}
-        />
+          <img
+            className="w-54 h-24 pt-3 m-2"
+            alt="TurckMiles Logo"
+            src={vTruck}
+          />
         </div>
       </>
     );

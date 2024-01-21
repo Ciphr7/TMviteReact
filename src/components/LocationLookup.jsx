@@ -2,9 +2,17 @@ import React, { Component } from "react";
 import vTruck from "../images/truck.png";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { CheckIcon } from "@radix-ui/react-icons";
+import { MdGpsFixed } from "react-icons/md";
 
 import "./LocationLookup.css";
 import MySelect from "./RouteOptions";
+
+const Checkbox2 = ({ checked, onChange }) => (
+  <div>
+    <input type="checkbox" checked={checked} onChange={onChange} />
+    <span>Border Closed</span>
+  </div>
+);
 
 class LocationLookup extends Component {
   constructor(props) {
@@ -127,42 +135,44 @@ class LocationLookup extends Component {
       <>
         <div className="bg-black p-2  text-center">
           <label className="flex justify-center">
-            <div className="  bg-red-500 w-60 rounded-sm m-1 p-1">
-         
-          <form>
-            <div >
-            <Checkbox.Root
-          className="CheckboxRoot"
-          checked={!isChecked}
-          onChange={this.handleCheckboxChange}
-          id="c1"
-        >
-              <Checkbox.Root className="CheckboxRoot"  id="c1">
-                <Checkbox.Indicator className="CheckboxIndicator">
-                  <CheckIcon />
-                </Checkbox.Indicator>
-                </Checkbox.Root>
-              </Checkbox.Root>
-              <label className="Label" htmlFor="c1">
-              Start at my GPS Location
-              </label>
-            </div>
-          </form>
+            <div className="  bg-red-500 w-80 rounded-sm m-1 p-1">
+              <form>
+                <div>
+                  <Checkbox.Root
+                    className="CheckboxRoot"
+                    checked={!isChecked}
+                    onChange={this.handleCheckboxChange}
+                    id="c1"
+                  >
+                    <Checkbox.Root className="CheckboxRoot" id="c1">
+                      <Checkbox.Indicator className="CheckboxIndicator">
+                        <CheckIcon />
+                      </Checkbox.Indicator>
+                    </Checkbox.Root>
+                  </Checkbox.Root>
+                  <label className="Label" htmlFor="c1">
+                    Start at my GPS Location
+                 
+                  
+                   </label><MdGpsFixed color="white" />
+                </div>
+              </form>
             </div>
           </label>
 
-
-          <label>
+          
+           
             <input
-              className="searchBox px-1 my-2 bg-white w-80  "
+              className="searchBox px-1 my-2 bg-white w-60  "
               type="text"
               value={locationValue === null ? "" : locationValue}
               onChange={this.handleInputChange}
               placeholder="Search for Location"
             />
-          </label>
+            
+         
 
-          <ul className="text-3 text-white p-2    font-bold bg-red-500">
+          <ul className="mx-auto text-3 text-white p-2 w-60     font-bold bg-red-500">
             {suggestions.map((suggestion, index) => (
               <li key={index} onClick={() => this.handleSelect(suggestion)}>
                 {suggestion}
@@ -172,7 +182,7 @@ class LocationLookup extends Component {
 
           <label>
             <input
-              className="searchBox px-1 my-2 w-80 bg-white"
+              className="searchBox px-1 w-60  my-2 bg-white"
               type="text"
               value={loc2Value === null ? "" : loc2Value}
               onChange={this.handleInputChange2}
@@ -180,7 +190,7 @@ class LocationLookup extends Component {
             />
           </label>
 
-          <ul className=" text-3 text-white p-2    font-bold bg-red-500">
+          <ul className=" mx-auto w-60 text-3 text-white p-2 font-bold bg-red-500">
             {suggestions2.map((suggestion2, index) => (
               <li key={index} onClick={() => this.handleSelect2(suggestion2)}>
                 {suggestion2}
@@ -188,24 +198,49 @@ class LocationLookup extends Component {
             ))}
           </ul>
 
-          <MySelect />
+          <MySelect  />
 
-          <div className="flex bg-red-500  rounded-sm m-1 p-1">
-            <input type="checkbox" className=" checked:bg-dark-500 w-10 h-5 " />
-            <span className="block text-sm font-sm text-white w-40">
-              Close Borders
-            </span>
-          </div>
+          <label className="flex justify-center">
+            <div className="  bg-red-500 w-60 rounded-sm m-1 p-1">
+              <form>
+                <div>
+                  <Checkbox.Root v-model="tollCheck" id="c2">
+                    <Checkbox.Root className="CheckboxRoot" id="c1">
+                      <Checkbox.Indicator className="CheckboxIndicator">
+                        <CheckIcon />
+                      </Checkbox.Indicator>
+                    </Checkbox.Root>
+                  </Checkbox.Root>
+                  <label className="Label" htmlFor="c2">
+                    Avoid Toll
+                  </label>
+                </div>
+              </form>
+            </div>
+          </label>
 
-          <div className="bg-red-500 rounded-sm  m-1 p-1">
-            <input
-              type="checkbox"
-              className=" checked:bg-black-500 w-10 h-5 "
-            />
-            <span className="block text-sm font-sm text-white ">
-              Avoid Toll
-            </span>
-          </div>
+          <label className="flex justify-center">
+            <div className="  bg-red-500 w-60 rounded-sm m-1 p-1">
+              <form>
+                <div>
+                  <Checkbox.Root
+                    className="CheckboxRoot"
+                   
+                    id="c3"
+                  >
+                    <Checkbox.Root className="CheckboxRoot" id="c3">
+                      <Checkbox.Indicator className="CheckboxIndicator">
+                        <CheckIcon />
+                      </Checkbox.Indicator>
+                    </Checkbox.Root>
+                  </Checkbox.Root>
+                  <label className="Label" htmlFor="c3">
+                    Border Closed
+                  </label>
+                </div>
+              </form>
+            </div>
+          </label>
 
           <img
             className="w-54 h-24 pt-3 m-2"

@@ -14,7 +14,7 @@ const customStyles = {
   }),
   option: (provided, state) => ({
     ...provided,
-    backgroundColor: state.isSelected ? 'red' : 'white', // Change option background color when selected
+    backgroundColor: state.isSelected ? 'black' : 'white', // Change option background color when selected
     color: state.isSelected ? 'white' : 'black', // Change option text color when selected
     ':hover': {
       backgroundColor: 'lightred', // Change hover-over color
@@ -33,7 +33,7 @@ const RtOptions = [
 
 const MySelect = () => (
   <Select
-    className="w-90 p-2"
+    className="mx-auto w-60  p-2"
     options={RtOptions}
     styles={customStyles}
     defaultValue={RtOptions[0]}

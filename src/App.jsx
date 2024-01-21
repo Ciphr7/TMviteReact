@@ -11,7 +11,7 @@ function App() {
   return (
     <div  className="App">
       <div className='wrapper'>
-      <Header title="TruckMiles 2024" />
+      <Header title="TruckMiles" />
      
       <GoogleMapComponent id='main' />
  

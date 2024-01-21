@@ -1,8 +1,10 @@
 import React, { Component } from "react";
-import vTruck from "../images/truck.png";
+import tmLogo from "../images/tmLogo.png";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { CheckIcon } from "@radix-ui/react-icons";
-import { MdGpsFixed } from "react-icons/md";
+
+import ContactlessIcon from "@mui/icons-material/Contactless";
+import Origin from "./Origin";
 
 import "./LocationLookup.css";
 import MySelect from "./RouteOptions";
@@ -133,11 +135,14 @@ class LocationLookup extends Component {
 
     return (
       <>
-        <div className="bg-black p-2  text-center">
-          <label className="flex justify-center">
-            <div className="  bg-red-500 w-80 rounded-sm m-1 p-1">
+        <div style={{background : '#3c3c3c'}}>
+        <div className="flex justify-center">
+          <img className=" h-20 pt-3 m-2 " src={tmLogo} alt="" />
+          </div>
+          <label className="flex  justify-center">
+            <div className="bg-red-500 w-60 rounded-sm m-1 p-1">
               <form>
-                <div>
+                <div className="flex items-center ">
                   <Checkbox.Root
                     className="CheckboxRoot"
                     checked={!isChecked}
@@ -150,27 +155,22 @@ class LocationLookup extends Component {
                       </Checkbox.Indicator>
                     </Checkbox.Root>
                   </Checkbox.Root>
-                  <label className="Label" htmlFor="c1">
+                  <label className="Label whitespace-nowrap " htmlFor="c1">
                     Start at my GPS Location
-                 
-                  
-                   </label><MdGpsFixed color="white" />
+                  </label>
+                  <ContactlessIcon className="text-white ml-auto" />
                 </div>
               </form>
             </div>
           </label>
-
-          
-           
-            <input
-              className="searchBox px-1 my-2 bg-white w-60  "
-              type="text"
-              value={locationValue === null ? "" : locationValue}
-              onChange={this.handleInputChange}
-              placeholder="Search for Location"
-            />
-            
-         
+          <Origin />
+          <input
+            className="searchBox px-1 my-2 bg-white w-60  "
+            type="text"
+            value={locationValue === null ? "" : locationValue}
+            onChange={this.handleInputChange}
+            placeholder="Search for Location"
+          />
 
           <ul className="mx-auto text-3 text-white p-2 w-60     font-bold bg-red-500">
             {suggestions.map((suggestion, index) => (
@@ -198,7 +198,7 @@ class LocationLookup extends Component {
             ))}
           </ul>
 
-          <MySelect  />
+          <MySelect />
 
           <label className="flex justify-center">
             <div className="  bg-red-500 w-60 rounded-sm m-1 p-1">
@@ -223,11 +223,7 @@ class LocationLookup extends Component {
             <div className="  bg-red-500 w-60 rounded-sm m-1 p-1">
               <form>
                 <div>
-                  <Checkbox.Root
-                    className="CheckboxRoot"
-                   
-                    id="c3"
-                  >
+                  <Checkbox.Root className="CheckboxRoot" id="c3">
                     <Checkbox.Root className="CheckboxRoot" id="c3">
                       <Checkbox.Indicator className="CheckboxIndicator">
                         <CheckIcon />
@@ -242,11 +238,7 @@ class LocationLookup extends Component {
             </div>
           </label>
 
-          <img
-            className="w-54 h-24 pt-3 m-2"
-            alt="TurckMiles Logo"
-            src={vTruck}
-          />
+          
         </div>
       </>
     );

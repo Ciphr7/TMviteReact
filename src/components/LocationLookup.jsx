@@ -2,12 +2,12 @@ import React, { Component } from "react";
 import tmLogo from "../images/tmLogo.png";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { CheckIcon } from "@radix-ui/react-icons";
-
+import { lookUpKey, tmAPIKey } from './tmAPIKey';
 import ContactlessIcon from "@mui/icons-material/Contactless";
-import Origin from "./Origin";
 
 import "./LocationLookup.css";
 import MySelect from "./RouteOptions";
+import { Button } from "@mui/material";
 
 const Checkbox2 = ({ checked, onChange }) => (
   <div>
@@ -22,9 +22,11 @@ class LocationLookup extends Component {
     this.state = {
       isChecked: false,
       locationValue: null,
+      locationValue2: null,
       loc2Value: null,
       suggestions: [],
       suggestions2: [],
+      
     };
   }
 
@@ -37,7 +39,6 @@ class LocationLookup extends Component {
           const { latitude, longitude } = position.coords;
           this.setState({
             locationValue: `${latitude}:${longitude}`,
-            suggestions: [`${latitude}:${longitude}`],
           });
         },
         (error) => {
@@ -55,7 +56,7 @@ class LocationLookup extends Component {
     const { locationValue } = this.state;
 
     fetch(
-      `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${locationValue}&apikey=${"bU03MSs2UjZIS21HMG5QSlIxUTB4QT090"}`
+      `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${locationValue}&apikey=${lookUpKey}`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -73,7 +74,7 @@ class LocationLookup extends Component {
     const { loc2Value } = this.state;
 
     fetch(
-      `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${loc2Value}&apikey=${"bU03MSs2UjZIS21HMG5QSlIxUTB4QT090"}`
+      `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${loc2Value}&apikey=${lookUpKey}`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -107,12 +108,14 @@ class LocationLookup extends Component {
     this.setState({
       locationValue: selectedValue,
       suggestions: [selectedValue],
+      suggestions: [],
     });
   };
   handleSelect2 = (selectedValue2) => {
     this.setState({
       loc2Value: selectedValue2,
       suggestions2: [selectedValue2],
+      suggestions2: [],
     });
   };
 
@@ -129,18 +132,90 @@ class LocationLookup extends Component {
     }
   };
 
+  testRunTrip = () =>  {
+    const {
+      locationValue,
+      loc2Value,
+      selectedRoutingMethod,
+      borderCheck,
+      tollCheck,
+      tmAPIKey,
+    } = this.state;
+  
+    const trip = {
+      TripLegs: [
+        {
+          Address: "",
+          City: "",
+          State: "",
+          PostalCode: "",
+          Latitude: "",
+          Longitude: "",
+          LocationText: locationValue ? locationValue : null,
+        },
+        {
+          Address: "",
+          City: "",
+          State: "",
+          PostalCode: "",
+          Latitude: "",
+          Longitude: "",
+          LocationText: loc2Value ? loc2Value : null,
+        },
+      ],
+      UnitMPG: 6,
+      RoutingMethod: selectedRoutingMethod,
+      BorderOpen: borderCheck,
+      AvoidTollRoads: tollCheck,
+      VehicleType: 7,
+      AllowRelaxRestrictions: false,
+      GetDrivingDirections: true,
+      GetMapPoints: true,
+      GetStateMileage: true,
+      GetTripSummary: true,
+      GetTruckStopsOnRoute: false,
+      GetFuelOptimization: false,
+      apikey: "TkkxbFNheDE2bndSTkwvbncrWFZGZz090",
+    };
+  
+    fetch("https://prime.promiles.com/WebAPI/api/RunTrip", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(trip),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(this.selectedItem);
+        console.log(JSON.stringify(data));
+        this.tresults = data;
+        //this.$store.commit("setTResults", data);
+       // this.$emit("trip-results", this.tresults);
+        console.log(selectedRoutingMethod); // Use selectedRoutingMethod directly
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
+  
+  
+
   render() {
     const { isChecked, locationValue, loc2Value, suggestions, suggestions2 } =
       this.state;
 
     return (
       <>
-        <div style={{background : '#3c3c3c'}}>
-        <div className="flex justify-center">
-          <img className=" h-20 pt-3 m-2 " src={tmLogo} alt="" />
+        <div style={{ background: "#3c3c3c" }}>
+          <div className="flex justify-center">
+            <img className=" h-20 pt-3 m-2 " src={tmLogo} alt="" />
           </div>
           <label className="flex  justify-center">
-            <div className="bg-red-500 w-60 rounded-sm m-1 p-1">
+            <div
+              style={{ background: "#f44336 ", padding: "5px" }}
+              className="w-60 rounded-sm m-1 p-1"
+            >
               <form>
                 <div className="flex items-center ">
                   <Checkbox.Root
@@ -163,45 +238,51 @@ class LocationLookup extends Component {
               </form>
             </div>
           </label>
-          <Origin />
-          <input
-            className="searchBox px-1 my-2 bg-white w-60  "
-            type="text"
-            value={locationValue === null ? "" : locationValue}
-            onChange={this.handleInputChange}
-            placeholder="Search for Location"
-          />
 
-          <ul className="mx-auto text-3 text-white p-2 w-60     font-bold bg-red-500">
-            {suggestions.map((suggestion, index) => (
-              <li key={index} onClick={() => this.handleSelect(suggestion)}>
-                {suggestion}
-              </li>
-            ))}
-          </ul>
-
-          <label>
+          <div className="flex">
             <input
-              className="searchBox px-1 w-60  my-2 bg-white"
+              className=" searchBox text-black px-1 my-2 w-60 mx-auto "
+              type="text"
+              value={locationValue === null ? "" : locationValue}
+              onChange={this.handleInputChange}
+              placeholder="Search for Location"
+            />
+          </div>
+          {suggestions.length > 0 && (
+            <ul className="mx-auto text-3 text-white p-2 w-60     font-bold bg-red-500">
+              {suggestions.map((suggestion, index) => (
+                <li key={index} onClick={() => this.handleSelect(suggestion)}>
+                  {suggestion}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <label className="text-center flex">
+            <input
+              className=" mx-auto text-black searchBox px-1 w-60  my-2"
               type="text"
               value={loc2Value === null ? "" : loc2Value}
               onChange={this.handleInputChange2}
               placeholder="Search for Location"
             />
           </label>
-
-          <ul className=" mx-auto w-60 text-3 text-white p-2 font-bold bg-red-500">
-            {suggestions2.map((suggestion2, index) => (
-              <li key={index} onClick={() => this.handleSelect2(suggestion2)}>
-                {suggestion2}
-              </li>
-            ))}
-          </ul>
-
+          {suggestions2.length > 0 && (
+            <ul className=" mx-auto w-60 text-3 text-white p-2 font-bold bg-red-500">
+              {suggestions2.map((suggestion2, index) => (
+                <li key={index} onClick={() => this.handleSelect2(suggestion2)}>
+                  {suggestion2}
+                </li>
+              ))}
+            </ul>
+          )}
           <MySelect />
 
           <label className="flex justify-center">
-            <div className="  bg-red-500 w-60 rounded-sm m-1 p-1">
+            <div
+              style={{ background: "#f44336" }}
+              className="w-60 rounded-sm m-1 p-1"
+            >
               <form>
                 <div>
                   <Checkbox.Root v-model="tollCheck" id="c2">
@@ -220,7 +301,10 @@ class LocationLookup extends Component {
           </label>
 
           <label className="flex justify-center">
-            <div className="  bg-red-500 w-60 rounded-sm m-1 p-1">
+            <div
+              style={{ background: "#f44336" }}
+              className=" w-60 rounded-sm m-1 p-1"
+            >
               <form>
                 <div>
                   <Checkbox.Root className="CheckboxRoot" id="c3">
@@ -236,8 +320,11 @@ class LocationLookup extends Component {
                 </div>
               </form>
             </div>
-          </label>
+            <br />
+            </label>
 
+            <div><Button onClick={this.testRunTrip}>Run Trip</Button></div>
+            {/* { tresults.TripDistance? tresults.TripDistance:null } */}
           
         </div>
       </>

@@ -22,8 +22,8 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-    <div style={{background : 'white', padding: '20px' }}>
-      <h1 style={{ color: '#2196f3' }}>Material-UI Autocomplete Example</h1>
+    <div style={{background : 'white', padding: '0px' }}>
+      
       <Autocomplete
         value={selectedOption}
         onChange={handleOptionChange}
@@ -39,9 +39,7 @@ function App() {
         )}
         style={{ width: '300px', marginTop: '10px' }} // Change width and margin
       />
-      <div style={{ marginTop: '20px' }}>
-        {selectedOption && <p>You selected: {selectedOption}</p>}
-      </div>
+    
     </div>
   </ThemeProvider>
   );

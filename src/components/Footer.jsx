@@ -2,9 +2,7 @@ import React, { useRef, useEffect } from "react";
 import vTruck from "../images/truck.png";
 import Box from '@mui/material/Box';
 import Popper from '@mui/material/Popper';
-
 import Button from "@mui/material/Button";
-import Typography from '@mui/material/Typography';
 import LocationLookup from "./LocationLookup";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -29,18 +27,20 @@ const Footer = () => {
   useEffect(() => {}, []);
 
   return (
-    <footer  style={{ background : '#3c3c3c', color: '#000', padding: '20px' }} >
-     <Card style={{margin: '1% 0',  background : '#f44336 ', color: 'white', padding: '10px' }}>
+    <footer  style={{ background : '#3c3c3c', color: '#000', padding: '2px 0px' }} >
+     <Card style={{margin: '1rem 5rem', background : '#000 ', color: 'white', padding: '1px 1px' }}  >
       <CardContent>
-      
-      <Button style={{background : '#3c3c3c', padding: '5px 20px' }} aria-describedby={id} variant="contained" onClick={handleClick}>
-      
-      <img
-            className="w-15 h-10 pt-3 m-2 "
-            alt="TurckMiles Logo"
-            src={vTruck}
-          /> <p style={{padding: '5px'}}>  New Trip</p> 
-      </Button>
+      <div style={{background : '#f44336', padding: '1px 1%', margin: 'auto auto'}} >
+      <Button style={{ background: '#3c3c3c', padding: '5px 25px', margin: 'auto 1%' }} aria-describedby={id} variant="contained" onClick={handleClick}>
+  <span>
+    <img
+      className="w-15 h-10 pt-2 m-2"
+      alt="TurckMiles Logo"
+      src={vTruck}
+    />
+    New Trip
+  </span>
+</Button>
 
       
     
@@ -50,9 +50,9 @@ const Footer = () => {
          <LocationLookup />
         </Box>
       </Popper>
-      <p className="p"> ProMiles Software Development Corp&copy;2024</p>
+      <p > ProMiles Software Development Corp&copy;2024</p>
 
-      <a href="/about">About</a>
+      <a href="/about">About</a></div>
       </CardContent>
       </Card>
     </footer>

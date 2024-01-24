@@ -4,7 +4,8 @@ import * as Checkbox from "@radix-ui/react-checkbox";
 import { CheckIcon } from "@radix-ui/react-icons";
 import { lookUpKey, tmAPIKey } from './tmAPIKey';
 import ContactlessIcon from "@mui/icons-material/Contactless";
-
+import PropTypes from 'prop-types';
+import TripResults from "./TripResults";
 import "./LocationLookup.css";
 import MySelect from "./RouteOptions";
 import { Button } from "@mui/material";
@@ -15,6 +16,7 @@ const Checkbox2 = ({ checked, onChange }) => (
     <span>Border Closed</span>
   </div>
 );
+//const { tripResults } = props;
 
 class LocationLookup extends Component {
   constructor(props) {
@@ -26,6 +28,7 @@ class LocationLookup extends Component {
       loc2Value: null,
       suggestions: [],
       suggestions2: [],
+      tripResults: null,
       
     };
   }
@@ -131,8 +134,13 @@ class LocationLookup extends Component {
       this.getGeolocation();
     }
   };
+  handleTripResults = (results) => {
+    // Do something with the trip results, e.g., update state
+    this.setState({ tripResults: results });
+    console.log(results.TripLegs[0].LocationText);
+  };
 
-  testRunTrip = () =>  {
+  testRunTrip = () => {
     const {
       locationValue,
       loc2Value,
@@ -170,7 +178,7 @@ class LocationLookup extends Component {
       VehicleType: 7,
       AllowRelaxRestrictions: false,
       GetDrivingDirections: true,
-      GetMapPoints: true,
+      GetMapPoints: false,
       GetStateMileage: true,
       GetTripSummary: true,
       GetTruckStopsOnRoute: false,
@@ -187,17 +195,15 @@ class LocationLookup extends Component {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(this.selectedItem);
+       // console.log(this.selectedItem);
         console.log(JSON.stringify(data));
-        this.tresults = data;
-        //this.$store.commit("setTResults", data);
-       // this.$emit("trip-results", this.tresults);
-        console.log(selectedRoutingMethod); // Use selectedRoutingMethod directly
+        this.handleTripResults(data); // Use this.handleTripResults
       })
       .catch((error) => {
         console.error("Error:", error);
       });
-  }
+  };
+  
   
   
 
@@ -207,6 +213,7 @@ class LocationLookup extends Component {
 
     return (
       <>
+      <TripResults tripResults={this.state.tripResults} />
         <div style={{ background: "#3c3c3c" }}>
           <div className="flex justify-center">
             <img className=" h-20 pt-3 m-2 " src={tmLogo} alt="" />
@@ -331,5 +338,11 @@ class LocationLookup extends Component {
     );
   }
 }
+
+LocationLookup.propTypes = {
+  onTripResults: PropTypes.func.isRequired, // Define the prop type
+  tripResults: PropTypes.object,
+  
+};
 
 export default LocationLookup;

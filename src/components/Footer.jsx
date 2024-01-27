@@ -18,14 +18,22 @@ const Footer = () => {
    
   });
   const [anchorEl, setAnchorEl] = React.useState(null);
+
   const [anchorEl2, setAnchorEl2] = React.useState(null);
-  const handleClick = (event) => {
-    setAnchorEl(anchorEl ? null : event.currentTarget);
+
+  const [open, setOpen] = React.useState(false);
+
+  const [placement, setPlacement] = React.useState();
+  
+  const handleClick = (newPlacement) => (event) =>{
+    setAnchorEl(event.currentTarget);
+    setOpen((prev) => placement !== newPlacement || !prev);
+    setPlacement(newPlacement);
   };
   const handleClick2 = (event) => {
     setAnchorEl2(anchorEl2 ? null : event.currentTarget);
   };
-  const open = Boolean(anchorEl);
+
   const open2 = Boolean(anchorEl2);
   const id = open ? "simple-popover" : undefined;
   const id2 = open2 ? "simple-popover2" : undefined;
@@ -70,7 +78,7 @@ const Footer = () => {
               }}
               aria-describedby={id}
               variant="contained"
-              onClick={handleClick}
+              onClick={handleClick('')}
             >
               <span>
                 <img
@@ -111,6 +119,8 @@ const Footer = () => {
               id={id}
               open={open}
               anchorEl={anchorEl}
+              placement={placement}
+              transition
             >
               <Box sx={{ border: 0, p: 1, bgcolor: "#3c3c3c" }}>
                 <LocationLookup onTripResults={handleTripResults} />

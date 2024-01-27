@@ -25,7 +25,7 @@ const Footer = () => {
 
   const [placement, setPlacement] = React.useState();
   
-  const handleClick = (newPlacement) => (event) =>{
+  const handleClick = (newPlacement) => (event) => {
     setAnchorEl(event.currentTarget);
     setOpen((prev) => placement !== newPlacement || !prev);
     setPlacement(newPlacement);
@@ -53,7 +53,7 @@ const Footer = () => {
   return (
     <footer
       style={{ background: "#3c3c3c", color: "#000", padding: "2px 0px" }}
-    >
+    ><div><TripResults tripResults={state.tripResults} /></div>
       <Card
         style={{
           margin: "1rem 5rem",
@@ -78,7 +78,7 @@ const Footer = () => {
               }}
               aria-describedby={id}
               variant="contained"
-              onClick={handleClick('')}
+              onClick={handleClick('top-end')}
             >
               <span>
                 <img
@@ -89,7 +89,7 @@ const Footer = () => {
                 New Trip
               </span>
             </Button>
-            <div><TripResults tripResults={state.tripResults} /></div>
+            
             <Button
               style={{
                 background: "#3c3c3c",
@@ -120,8 +120,9 @@ const Footer = () => {
               open={open}
               anchorEl={anchorEl}
               placement={placement}
-              transition
+              
             >
+            
               <Box sx={{ border: 0, p: 1, bgcolor: "#3c3c3c" }}>
                 <LocationLookup onTripResults={handleTripResults} />
               </Box>

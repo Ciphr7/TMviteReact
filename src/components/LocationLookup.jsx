@@ -1,63 +1,63 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import tmLogo from "../images/tmLogo.png";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { CheckIcon } from "@radix-ui/react-icons";
-import { lookUpKey, tmAPIKey } from './tmAPIKey';
+import { lookUpKey } from "./tmAPIKey";
 import ContactlessIcon from "@mui/icons-material/Contactless";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import TripResults from "./TripResults";
 import "./LocationLookup.css";
 import MySelect from "./RouteOptions";
 import { Button } from "@mui/material";
 
-const Checkbox2 = ({ checked, onChange }) => (
-  <div>
-    <input type="checkbox" checked={checked} onChange={onChange} />
-    <span>Border Closed</span>
-  </div>
-);
-//const { tripResults } = props;
+const LocationLookup = ({ onTripResults }) => {
+  const [state, setState] = useState({
+    isChecked: false,
+    locationValue: null,
+    loc2Value: null,
+    suggestions: [],
+    suggestions2: [],
+    tripResults: null,
+    selectedRoutingMethod: null,
+    borderCheck: false,
+    tollCheck: false,
+  });
 
-class LocationLookup extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isChecked: false,
-      locationValue: null,
-      locationValue2: null,
-      loc2Value: null,
-      suggestions: [],
-      suggestions2: [],
-      tripResults: null,
-      
-    };
-  }
+  useEffect(() => {
+    if (state.locationValue && state.locationValue.length >= 3) {
+      fetchSuggestions();
+    }
+  }, [state.locationValue]);
 
-  // Function to get the user's current location
-  getGeolocation = () => {
+  useEffect(() => {
+    if (state.loc2Value && state.loc2Value.length >= 3) {
+      fetchSuggestions2();
+    }
+  }, [state.loc2Value]);
+
+  const getGeolocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          // Extract latitude and longitude from the position object
           const { latitude, longitude } = position.coords;
-          this.setState({
+          setState((prevState) => ({
+            ...prevState,
             locationValue: `${latitude}:${longitude}`,
-          });
+          }));
         },
         (error) => {
           console.error("Error getting geolocation:", error);
-          this.setState({ locationValue: null });
+          setState((prevState) => ({ ...prevState, locationValue: null }));
         }
       );
     } else {
       console.error("Geolocation is not supported in this browser.");
-      this.setState({ locationValue: null });
+      setState((prevState) => ({ ...prevState, locationValue: null }));
     }
   };
 
-  fetchSuggestions = () => {
-    const { locationValue } = this.state;
-
+  const fetchSuggestions = () => {
+    const { locationValue } = state;
     fetch(
       `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${locationValue}&apikey=${lookUpKey}`
     )
@@ -66,16 +66,15 @@ class LocationLookup extends Component {
         const suggestions = data.map(
           (item) => `${item.City}, ${item.State}, ${item.PostalCode}`
         );
-        this.setState({ suggestions });
+        setState((prevState) => ({ ...prevState, suggestions }));
       })
       .catch((error) => {
         console.error("Error fetching suggestions:", error);
       });
   };
 
-  fetchSuggestions2 = () => {
-    const { loc2Value } = this.state;
-
+  const fetchSuggestions2 = () => {
+    const { loc2Value } = state;
     fetch(
       `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${loc2Value}&apikey=${lookUpKey}`
     )
@@ -84,97 +83,66 @@ class LocationLookup extends Component {
         const suggestions2 = data.map(
           (item) => `${item.City}, ${item.State}, ${item.PostalCode}`
         );
-        this.setState({ suggestions2 });
+        setState((prevState) => ({ ...prevState, suggestions2 }));
       })
       .catch((error) => {
         console.error("Error fetching suggestions2:", error);
       });
   };
 
-  handleInputChange = (e) => {
-    this.setState({ locationValue: e.target.value }, () => {
-      if (this.state.locationValue.length >= 3) {
-        this.fetchSuggestions();
-      }
-    });
+  const handleInputChange = (e) => {
+    const locationValue = e.target.value;
+    setState((prevState) => ({ ...prevState, locationValue }));
   };
 
-  handleInputChange2 = (e) => {
-    this.setState({ loc2Value: e.target.value }, () => {
-      if (this.state.loc2Value.length >= 3) {
-        this.fetchSuggestions2();
-      }
-    });
+  const handleInputChange2 = (e) => {
+    const loc2Value = e.target.value;
+    setState((prevState) => ({ ...prevState, loc2Value }));
   };
 
-  handleSelect = (selectedValue) => {
-    this.setState({
+  const handleSelect = (selectedValue) => {
+    setState((prevState) => ({
+      ...prevState,
       locationValue: selectedValue,
       suggestions: [selectedValue],
-      suggestions: [],
-    });
+    }));
   };
-  handleSelect2 = (selectedValue2) => {
-    this.setState({
+
+  const handleSelect2 = (selectedValue2) => {
+    setState((prevState) => ({
+      ...prevState,
       loc2Value: selectedValue2,
       suggestions2: [selectedValue2],
-      suggestions2: [],
-    });
+    }));
   };
 
-  // Function to handle checkbox change
-  handleCheckboxChange = () => {
-    const { isChecked } = this.state;
-    this.setState({ isChecked: !isChecked });
+  const handleCheckboxChange = () => {
+    const { isChecked } = state;
+    setState((prevState) => ({ ...prevState, isChecked: !isChecked }));
 
-    // Set the input value based on the checkbox state
     if (isChecked) {
-      this.setState({ locationValue: null, suggestions: [] });
+      setState((prevState) => ({ ...prevState, locationValue: null, suggestions: [] }));
     } else {
-      this.getGeolocation();
+      getGeolocation();
     }
   };
-  handleTripResults = (results) => {
-    // Do something with the trip results, e.g., update state
-    this.setState({ tripResults: results });
-    console.log(results.TripLegs[0].LocationText);
-  };
 
-  testRunTrip = () => {
-    const {
-      locationValue,
-      loc2Value,
-      selectedRoutingMethod,
-      borderCheck,
-      tollCheck,
-      tmAPIKey,
-    } = this.state;
-  
+  const testRunTrip = () => {
+    const { locationValue, loc2Value, isChecked } = state;
+
     const trip = {
       TripLegs: [
         {
-          Address: "",
-          City: "",
-          State: "",
-          PostalCode: "",
-          Latitude: "",
-          Longitude: "",
-          LocationText: locationValue ? locationValue : null,
+          LocationText: locationValue || null,
         },
         {
-          Address: "",
-          City: "",
-          State: "",
-          PostalCode: "",
-          Latitude: "",
-          Longitude: "",
-          LocationText: loc2Value ? loc2Value : null,
+          LocationText: loc2Value || null,
         },
       ],
       UnitMPG: 6,
-      RoutingMethod: selectedRoutingMethod,
-      BorderOpen: borderCheck,
-      AvoidTollRoads: tollCheck,
+      RoutingMethod: state.selectedRoutingMethod,
+      BorderOpen: state.borderCheck,
+      AvoidTollRoads: state.tollCheck,
       VehicleType: 7,
       AllowRelaxRestrictions: false,
       GetDrivingDirections: true,
@@ -185,7 +153,7 @@ class LocationLookup extends Component {
       GetFuelOptimization: false,
       apikey: "TkkxbFNheDE2bndSTkwvbncrWFZGZz090",
     };
-  
+
     fetch("https://prime.promiles.com/WebAPI/api/RunTrip", {
       method: "POST",
       headers: {
@@ -195,154 +163,153 @@ class LocationLookup extends Component {
     })
       .then((response) => response.json())
       .then((data) => {
-       // console.log(this.selectedItem);
-        console.log(JSON.stringify(data));
-        this.handleTripResults(data); // Use this.handleTripResults
+        setState((prevState) => ({ ...prevState, tripResults: data }));
+        onTripResults(data);
       })
       .catch((error) => {
         console.error("Error:", error);
       });
   };
-  
-  
-  
 
-  render() {
-    const { isChecked, locationValue, loc2Value, suggestions, suggestions2 } =
-      this.state;
+  const {
+    isChecked,
+    locationValue,
+    loc2Value,
+    suggestions,
+    suggestions2,
+    selectedRoutingMethod,
+    borderCheck,
+    tollCheck,
+  } = state;
 
-    return (
-      <>
-      <TripResults tripResults={this.state.tripResults} />
-        <div style={{ background: "#3c3c3c" }}>
-          <div className="flex justify-center">
-            <img className=" h-20 pt-3 m-2 " src={tmLogo} alt="" />
-          </div>
-          <label className="flex  justify-center">
-            <div
-              style={{ background: "#f44336 ", padding: "5px" }}
-              className="w-60 rounded-sm m-1 p-1"
-            >
-              <form>
-                <div className="flex items-center ">
-                  <Checkbox.Root
-                    className="CheckboxRoot"
-                    checked={!isChecked}
-                    onChange={this.handleCheckboxChange}
-                    id="c1"
-                  >
-                    <Checkbox.Root className="CheckboxRoot" id="c1">
-                      <Checkbox.Indicator className="CheckboxIndicator">
-                        <CheckIcon />
-                      </Checkbox.Indicator>
-                    </Checkbox.Root>
-                  </Checkbox.Root>
-                  <label className="Label whitespace-nowrap " htmlFor="c1">
-                    Start at my GPS Location
-                  </label>
-                  <ContactlessIcon className="text-white ml-auto" />
-                </div>
-              </form>
-            </div>
-          </label>
-
-          <div className="flex">
-            <input
-              className=" searchBox text-black px-1 my-2 w-60 mx-auto "
-              type="text"
-              value={locationValue === null ? "" : locationValue}
-              onChange={this.handleInputChange}
-              placeholder="Search for Location"
-            />
-          </div>
-          {suggestions.length > 0 && (
-            <ul className="mx-auto text-3 text-white p-2 w-60     font-bold bg-red-500">
-              {suggestions.map((suggestion, index) => (
-                <li key={index} onClick={() => this.handleSelect(suggestion)}>
-                  {suggestion}
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <label className="text-center flex">
-            <input
-              className=" mx-auto text-black searchBox px-1 w-60  my-2"
-              type="text"
-              value={loc2Value === null ? "" : loc2Value}
-              onChange={this.handleInputChange2}
-              placeholder="Search for Location"
-            />
-          </label>
-          {suggestions2.length > 0 && (
-            <ul className=" mx-auto w-60 text-3 text-white p-2 font-bold bg-red-500">
-              {suggestions2.map((suggestion2, index) => (
-                <li key={index} onClick={() => this.handleSelect2(suggestion2)}>
-                  {suggestion2}
-                </li>
-              ))}
-            </ul>
-          )}
-          <MySelect />
-
-          <label className="flex justify-center">
-            <div
-              style={{ background: "#f44336" }}
-              className="w-60 rounded-sm m-1 p-1"
-            >
-              <form>
-                <div>
-                  <Checkbox.Root v-model="tollCheck" id="c2">
-                    <Checkbox.Root className="CheckboxRoot" id="c1">
-                      <Checkbox.Indicator className="CheckboxIndicator">
-                        <CheckIcon />
-                      </Checkbox.Indicator>
-                    </Checkbox.Root>
-                  </Checkbox.Root>
-                  <label className="Label" htmlFor="c2">
-                    Avoid Toll
-                  </label>
-                </div>
-              </form>
-            </div>
-          </label>
-
-          <label className="flex justify-center">
-            <div
-              style={{ background: "#f44336" }}
-              className=" w-60 rounded-sm m-1 p-1"
-            >
-              <form>
-                <div>
-                  <Checkbox.Root className="CheckboxRoot" id="c3">
-                    <Checkbox.Root className="CheckboxRoot" id="c3">
-                      <Checkbox.Indicator className="CheckboxIndicator">
-                        <CheckIcon />
-                      </Checkbox.Indicator>
-                    </Checkbox.Root>
-                  </Checkbox.Root>
-                  <label className="Label" htmlFor="c3">
-                    Border Closed
-                  </label>
-                </div>
-              </form>
-            </div>
-            <br />
-            </label>
-
-            <div><Button onClick={this.testRunTrip}>Run Trip</Button></div>
-            {/* { tresults.TripDistance? tresults.TripDistance:null } */}
-          
+  return (
+    <>
+      
+      <div style={{ background: "#3c3c3c" }}>
+        <div className="flex justify-center">
+          <img className="h-20 pt-3 m-2" src={tmLogo} alt="" />
         </div>
-      </>
-    );
-  }
-}
+        <label className="flex justify-center">
+          <div
+            style={{ background: "#f44336", padding: "5px" }}
+            className="w-60 rounded-sm m-1 p-1"
+          >
+            <form>
+              <div className="flex items-center ">
+                <Checkbox.Root
+                  className="CheckboxRoot"
+                  checked={!isChecked}
+                  onChange={handleCheckboxChange}
+                  id="c1"
+                >
+                  <Checkbox.Root className="CheckboxRoot" id="c1">
+                    <Checkbox.Indicator className="CheckboxIndicator">
+                      <CheckIcon />
+                    </Checkbox.Indicator>
+                  </Checkbox.Root>
+                </Checkbox.Root>
+                <label className="Label whitespace-nowrap " htmlFor="c1">
+                  Start at my GPS Location
+                </label>
+                <ContactlessIcon className="text-white ml-auto" />
+              </div>
+            </form>
+          </div>
+        </label>
+
+        {/* Rest of your component code */}
+        <div className="flex">
+          <input
+            className="searchBox text-black px-1 my-2 w-60 mx-auto "
+            type="text"
+            value={locationValue === null ? "" : locationValue}
+            onChange={handleInputChange}
+            placeholder="Search for Location"
+          />
+        </div>
+        {suggestions.length > 0 && (
+          <ul className="mx-auto text-3 text-white p-2 w-60 font-bold bg-red-500">
+            {suggestions.map((suggestion, index) => (
+              <li key={index} onClick={() => handleSelect(suggestion)}>
+                {suggestion}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <label className="text-center flex">
+          <input
+            className="mx-auto text-black searchBox px-1 w-60 my-2"
+            type="text"
+            value={loc2Value === null ? "" : loc2Value}
+            onChange={handleInputChange2}
+            placeholder="Search for Location"
+          />
+        </label>
+        {suggestions2.length > 0 && (
+          <ul className="mx-auto w-60 text-3 text-white p-2 font-bold bg-red-500">
+            {suggestions2.map((suggestion2, index) => (
+              <li key={index} onClick={() => handleSelect2(suggestion2)}>
+                {suggestion2}
+              </li>
+            ))}
+          </ul>
+        )}
+        <MySelect
+          onSelect={(selectedValue) => {
+            setState((prevState) => ({ ...prevState, selectedRoutingMethod: selectedValue }));
+          }}
+        />
+
+        <label className="flex justify-center">
+          <div style={{ background: "#f44336" }} className="w-60 rounded-sm m-1 p-1">
+            <form>
+              <div>
+                <Checkbox.Root checked={tollCheck} onChange={() => handleCheckboxChange("tollCheck")} id="c2">
+                  <Checkbox.Root className="CheckboxRoot" id="c1">
+                    <Checkbox.Indicator className="CheckboxIndicator">
+                      <CheckIcon />
+                    </Checkbox.Indicator>
+                  </Checkbox.Root>
+                </Checkbox.Root>
+                <label className="Label" htmlFor="c2">
+                  Avoid Toll
+                </label>
+              </div>
+            </form>
+          </div>
+        </label>
+
+        <label className="flex justify-center">
+          <div style={{ background: "#f44336" }} className="w-60 rounded-sm m-1 p-1">
+            <form>
+              <div>
+                <Checkbox.Root checked={borderCheck} onChange={() => handleCheckboxChange("borderCheck")} id="c3">
+                  <Checkbox.Root className="CheckboxRoot" id="c3">
+                    <Checkbox.Indicator className="CheckboxIndicator">
+                      <CheckIcon />
+                    </Checkbox.Indicator>
+                  </Checkbox.Root>
+                </Checkbox.Root>
+                <label className="Label" htmlFor="c3">
+                  Border Closed
+                </label>
+              </div>
+            </form>
+          </div>
+          <br />
+        </label>
+
+        <div>
+          <Button onClick={testRunTrip}>Run Trip</Button>
+        </div>
+      </div>
+    </>
+  );
+};
 
 LocationLookup.propTypes = {
-  onTripResults: PropTypes.func.isRequired, // Define the prop type
-  tripResults: PropTypes.object,
-  
+  onTripResults: PropTypes.func.isRequired,
 };
 
 export default LocationLookup;

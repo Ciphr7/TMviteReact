@@ -7,10 +7,16 @@ import LocationLookup from "./LocationLookup";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import TripResults from "./TripResults";
+import MyToken from "./Token";
 
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 
 const Footer = () => {
+  const [state, setState] = useState({
+   
+    tripResults: null,
+   
+  });
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [anchorEl2, setAnchorEl2] = React.useState(null);
   const handleClick = (event) => {
@@ -75,6 +81,7 @@ const Footer = () => {
                 New Trip
               </span>
             </Button>
+            <div><TripResults tripResults={state.tripResults} /></div>
             <Button
               style={{
                 background: "#3c3c3c",
@@ -121,6 +128,7 @@ const Footer = () => {
             >
               <Box sx={{ border: 0, p: 1, bgcolor: "#3c3c3c" }}>
                 <TripResults tripResults={tripResults}  />
+                <MyToken />
               </Box>
             </Popper>
             <p> ProMiles Software Development Corp&copy;2024</p>

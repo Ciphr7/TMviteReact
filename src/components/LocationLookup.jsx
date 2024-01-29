@@ -5,7 +5,7 @@ import { CheckIcon } from "@radix-ui/react-icons";
 import { lookUpKey } from "./tmAPIKey";
 import ContactlessIcon from "@mui/icons-material/Contactless";
 import PropTypes from "prop-types";
-import TripResults from "./TripResults";
+
 import "./LocationLookup.css";
 import MySelect from "./RouteOptions";
 import { Button } from "@mui/material";
@@ -105,6 +105,7 @@ const LocationLookup = ({ onTripResults }) => {
       ...prevState,
       locationValue: selectedValue,
       suggestions: [selectedValue],
+     
     }));
   };
 
@@ -227,7 +228,7 @@ const LocationLookup = ({ onTripResults }) => {
             placeholder="Search for Location"
           />
         </div>
-        {suggestions.length > 0 && (
+        {suggestions.length > 1 && (
           <ul className="mx-auto text-3 text-white p-2 w-60 font-bold bg-red-500">
             {suggestions.map((suggestion, index) => (
               <li key={index} onClick={() => handleSelect(suggestion)}>
@@ -246,7 +247,7 @@ const LocationLookup = ({ onTripResults }) => {
             placeholder="Search for Location"
           />
         </label>
-        {suggestions2.length > 0 && (
+        {suggestions2.length > 3 && (
           <ul className="mx-auto w-60 text-3 text-white p-2 font-bold bg-red-500">
             {suggestions2.map((suggestion2, index) => (
               <li key={index} onClick={() => handleSelect2(suggestion2)}>

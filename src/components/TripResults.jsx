@@ -1,6 +1,11 @@
+import tmLogo from "../images/tmLogo.png";
+
 const TripResults = ({ tripResults }) => {
   return (
     <div>
+          <div className="flex justify-center">
+            <img className="h-20 pt-3 m-2" src={tmLogo} alt="" />
+          </div>
       {tripResults ? (
         <div>
           <h2>Trip Results</h2>

@@ -30,7 +30,7 @@ const MyToken = () => {
 
   return (
     <div>
-      <h1>Hello</h1>
+      <h1>Token</h1>
       <Button onClick={fetchToken}>Fetch Token</Button>
       {token && <div>Token: {token}</div>}
     </div>

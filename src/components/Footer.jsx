@@ -21,20 +21,30 @@ const Footer = () => {
 
   const [anchorEl2, setAnchorEl2] = React.useState(null);
 
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen ] = React.useState(false);
+  const [open2, setOpen2] = React.useState(false);
 
   const [placement, setPlacement] = React.useState();
-  
+  const [placement2, setPlacement2] = React.useState();
+
   const handleClick = (newPlacement) => (event) => {
     setAnchorEl(event.currentTarget);
     setOpen((prev) => placement !== newPlacement || !prev);
     setPlacement(newPlacement);
   };
-  const handleClick2 = (event) => {
+
+  const handleClick2 = (newPlacement) => (event) => {
+    setAnchorEl2(event.currentTarget);
+    setOpen2((prev) => placement2 !== newPlacement || !prev);
+    setPlacement2(newPlacement);
+  };
+  
+
+  const handleClick3 = (event) => {
     setAnchorEl2(anchorEl2 ? null : event.currentTarget);
   };
 
-  const open2 = Boolean(anchorEl2);
+
   const id = open ? "simple-popover" : undefined;
   const id2 = open2 ? "simple-popover2" : undefined;
   // Create a ref to store the reference to the button element
@@ -98,7 +108,7 @@ const Footer = () => {
               }}
               aria-describedby={id}
               variant="contained"
-              onClick={handleClick2}
+              onClick={handleClick2('top-start')}
             >
               <span>
                 <img
@@ -136,6 +146,7 @@ const Footer = () => {
               id={id2}
               open={open2}
               anchorEl={anchorEl2}
+              placement={placement2}
             >
               <Box sx={{ border: 0, p: 1, bgcolor: "#3c3c3c" }}>
                 <TripResults tripResults={tripResults}  />

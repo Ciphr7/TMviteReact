@@ -228,7 +228,7 @@ const LocationLookup = ({ onTripResults }) => {
             placeholder="Search for Location"
           />
         </div>
-        {suggestions.length > 1 && (
+        {suggestions.length > 3 && (
           <ul className="mx-auto text-3 text-white p-2 w-60 font-bold bg-red-500">
             {suggestions.map((suggestion, index) => (
               <li key={index} onClick={() => handleSelect(suggestion)}>

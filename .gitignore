@@ -8,12 +8,12 @@ pnpm-debug.log*
 lerna-debug.log*
 src/components/tmAPIKey.js
 src/components/googleApiKey.js
+src/components/Token.js
 node_modules
 dist
 dist-ssr
 *.local
 
-src/components/Token.jsx
 
 # Editor directories and files
 .vscode/*

@@ -8,13 +8,13 @@ const TripResults = ({ tripResults }) => {
       </div>
       {tripResults ? (
         <div>
-          <h2>Trip Results</h2>
+          <h2 className="flex justify-center"><strong>Trip Summary</strong></h2>
           {/* Render the trip results using the received data */}
           <p>Origin: {tripResults.TripLegs[0].LocationText}</p>
           <p>Destination: {tripResults.TripLegs[1].LocationText}</p>
           <p>Trip Distance: {tripResults.TripDistance}</p>
           <p>Trip Time: {(tripResults.TripMinutes / 60).toFixed(2)} Hours</p>
-          <h3>Jurisdiction Mileage</h3>
+          <h3 className="flex justify-center"><strong>Jurisdiction Mileage</strong></h3>
           {tripResults.JurisdictionMileage ? (
             <ul>
               {tripResults.JurisdictionMileage.map((mileage) => (
@@ -31,6 +31,21 @@ const TripResults = ({ tripResults }) => {
           ) : (
             <p>No jurisdiction mileage data available yet.</p>
           )}
+         <h1 className="flex justify-center"> <strong>Driving Directions</strong></h1>
+{tripResults.DrivingDirections ? (
+  <ul>
+    {tripResults.DrivingDirections.map((direction, index) => (
+      <li key={index}>
+        <p><strong>Maneuver:</strong> {direction.Maneuver}</p>
+        <p><strong>DistanceFrmStart:</strong> {direction.DistanceAtStart}</p>
+        <p><strong>LegMiles:</strong> {direction.LegMiles}</p>
+        {/* Add more properties as needed */}
+      </li>
+    ))}
+  </ul>
+) : (
+  <p>No driving directions available yet.</p>
+)}
         </div>
       ) : (
         <p>No trip results available yet.</p>

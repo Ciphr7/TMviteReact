@@ -38,11 +38,7 @@ const Footer = () => {
     setOpen2((prev) => placement2 !== newPlacement || !prev);
     setPlacement2(newPlacement);
   };
-  
 
-  const handleClick3 = (event) => {
-    setAnchorEl2(anchorEl2 ? null : event.currentTarget);
-  };
 
 
   const id = open ? "simple-popover" : undefined;

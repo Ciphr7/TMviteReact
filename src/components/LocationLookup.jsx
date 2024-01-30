@@ -11,6 +11,60 @@ import MySelect from "./RouteOptions";
 import { Button } from "@mui/material";
 
 const LocationLookup = ({ onTripResults }) => {
+
+  const [tollCheck, setTollCheck] = useState(false);
+  const [borderCheck, setBorderCheck] = useState(false);
+  const [gpsCheck, setGPSCheck] = useState(false);
+
+ 
+
+  const handleGPSChange = () => {
+    if (gpsCheck) {
+      // Checkbox is checked, get geolocation
+      setState((prevState) => ({ ...prevState, locationValue: null, suggestions: [] }));
+    } else {
+      //setGPSCheck
+      // Checkbox is not checked, set locationValue to null
+      getGeolocation();
+    }
+  };
+  const handleCheckboxChange = () => {
+    const { isChecked } = state;
+    setState((prevState) => ({ ...prevState, isChecked: !isChecked }));
+
+    if (isChecked) {
+      setState((prevState) => ({ ...prevState, locationValue: null, suggestions: [] }));
+    } else {
+      getGeolocation();
+    }
+  };
+
+ 
+
+  const handleAvoidToll = () => {
+    setTollCheck(!tollCheck);
+  };
+
+  const isCheckboxChecked = () => {
+    return tollCheck;
+  };
+
+  const handleCheckborderChange = () => {
+    setBorderCheck(!borderCheck);
+  };
+
+  const isBorderChecked = () => {
+    return borderCheck;
+  };
+
+
+
+
+  const [selectedValue, setSelectedValue] = useState(null);
+
+  const handleSelectChange = (selected) => {
+    setSelectedValue(selected);
+  };
   const [state, setState] = useState({
     isChecked: false,
     locationValue: null,
@@ -19,8 +73,8 @@ const LocationLookup = ({ onTripResults }) => {
     suggestions2: [],
     tripResults: null,
     selectedRoutingMethod: null,
-    borderCheck: false,
-    tollCheck: false,
+    
+   
   });
 
   useEffect(() => {
@@ -43,6 +97,7 @@ const LocationLookup = ({ onTripResults }) => {
           setState((prevState) => ({
             ...prevState,
             locationValue: `${latitude}:${longitude}`,
+           
           }));
         },
         (error) => {
@@ -117,16 +172,7 @@ const LocationLookup = ({ onTripResults }) => {
     }));
   };
 
-  const handleCheckboxChange = () => {
-    const { isChecked } = state;
-    setState((prevState) => ({ ...prevState, isChecked: !isChecked }));
-
-    if (isChecked) {
-      setState((prevState) => ({ ...prevState, locationValue: null, suggestions: [] }));
-    } else {
-      getGeolocation();
-    }
-  };
+  
 
   const testRunTrip = () => {
     const { locationValue, loc2Value, isChecked } = state;
@@ -141,9 +187,9 @@ const LocationLookup = ({ onTripResults }) => {
         },
       ],
       UnitMPG: 6,
-      RoutingMethod: state.selectedRoutingMethod,
-      BorderOpen: state.borderCheck,
-      AvoidTollRoads: state.tollCheck,
+      RoutingMethod: selectedValue ? selectedValue.label : 'None',
+      BorderOpen: isBorderChecked() ? 'true' : 'false',
+      AvoidTollRoads: isCheckboxChecked() ? 'true' : 'false',
       VehicleType: 7,
       AllowRelaxRestrictions: false,
       GetDrivingDirections: true,
@@ -166,6 +212,7 @@ const LocationLookup = ({ onTripResults }) => {
       .then((data) => {
         setState((prevState) => ({ ...prevState, tripResults: data }));
         onTripResults(data);
+        
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -178,9 +225,7 @@ const LocationLookup = ({ onTripResults }) => {
     loc2Value,
     suggestions,
     suggestions2,
-    selectedRoutingMethod,
-    borderCheck,
-    tollCheck,
+    
   } = state;
 
   return (
@@ -199,7 +244,7 @@ const LocationLookup = ({ onTripResults }) => {
               <div className="flex items-center ">
                 <Checkbox.Root
                   className="CheckboxRoot"
-                  checked={!isChecked}
+                  checked={!state.isChecked}
                   onChange={handleCheckboxChange}
                   id="c1"
                 >
@@ -257,27 +302,28 @@ const LocationLookup = ({ onTripResults }) => {
           </ul>
         )}
         <MySelect
-          onSelect={(selectedValue) => {
-            setState((prevState) => ({ ...prevState, selectedRoutingMethod: selectedValue }));
-          }}
+          onSelectChange={handleSelectChange}
         />
+       
 
         <label className="flex justify-center">
           <div style={{ background: "#f44336" }} className="w-60 rounded-sm m-1 p-1">
-            <form>
-              <div>
-                <Checkbox.Root checked={tollCheck} onChange={() => handleCheckboxChange("tollCheck")} id="c2">
-                  <Checkbox.Root className="CheckboxRoot" id="c1">
-                    <Checkbox.Indicator className="CheckboxIndicator">
-                      <CheckIcon />
-                    </Checkbox.Indicator>
-                  </Checkbox.Root>
-                </Checkbox.Root>
-                <label className="Label" htmlFor="c2">
-                  Avoid Toll
-                </label>
-              </div>
-            </form>
+          <form>
+      <div>
+        <Checkbox.Root checked={!tollCheck} onChange={handleAvoidToll} id="c2">
+          <Checkbox.Root className="CheckboxRoot" id="c1">
+            <Checkbox.Indicator className="CheckboxIndicator">
+              <CheckIcon />
+            </Checkbox.Indicator>
+          </Checkbox.Root>
+        </Checkbox.Root>
+        <label className="Label" htmlFor="c2">
+          Avoid Toll
+        </label>
+      </div>
+      {/* You can use the isCheckboxChecked function as needed */}
+      
+    </form>
           </div>
         </label>
 
@@ -285,7 +331,7 @@ const LocationLookup = ({ onTripResults }) => {
           <div style={{ background: "#f44336" }} className="w-60 rounded-sm m-1 p-1">
             <form>
               <div>
-                <Checkbox.Root checked={borderCheck} onChange={() => handleCheckboxChange("borderCheck")} id="c3">
+                <Checkbox.Root checked={!borderCheck} onChange={() => handleCheckborderChange("borderCheck")} id="c3">
                   <Checkbox.Root className="CheckboxRoot" id="c3">
                     <Checkbox.Indicator className="CheckboxIndicator">
                       <CheckIcon />

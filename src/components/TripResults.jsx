@@ -13,6 +13,7 @@ const TripResults = ({ tripResults }) => {
           <p>Origin: {tripResults.TripLegs[0].LocationText}</p>
           <p>Destination: {tripResults.TripLegs[1].LocationText}</p>
           <p>Trip Distance: {tripResults.TripDistance}</p>
+          <p>Trip Time: {tripResults.TripMinutes / 60} Hours</p>
           {/* Add more details as needed */}
         </div>
       ) : (

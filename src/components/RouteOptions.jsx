@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Select from 'react-select';
 
 const customStyles = {
@@ -23,21 +23,31 @@ const customStyles = {
   // Add more styles as needed
 };
 
+
 const RtOptions = [
   { value: 'practical', label: 'Practical' },
   { value: 'shortest', label: 'Shortest' },
   { value: 'interstate', label: 'Interstate' }
 ];
 
+const MySelect = ({ onSelectChange }) => {
+  const [selectedOption, setSelectedOption] = useState(RtOptions[0]);
 
+  const handleChange = (selected) => {
+    setSelectedOption(selected);
+    onSelectChange(selected);
+  };
 
-const MySelect = () => (
-  <Select
-    className="mx-auto w-60  p-2"
-    options={RtOptions}
-    styles={customStyles}
-    defaultValue={RtOptions[0]}
-  />
-);
+  return (
+    <Select
+      className="mx-auto w-60 p-2"
+      options={RtOptions}
+      styles={customStyles}
+      value={selectedOption}
+      onChange={handleChange}
+      defaultValue={RtOptions[1]}
+    />
+  );
+};
 
 export default MySelect;

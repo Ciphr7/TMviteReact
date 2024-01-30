@@ -187,9 +187,9 @@ const LocationLookup = ({ onTripResults }) => {
         },
       ],
       UnitMPG: 6,
-      RoutingMethod: selectedValue ? selectedValue.label : 'None',
-      BorderOpen: isBorderChecked() ? 'true' : 'false',
-      AvoidTollRoads: isCheckboxChecked() ? 'true' : 'false',
+      RoutingMethod: selectedValue ? selectedValue.label : 'Practical',
+      BorderOpen: isBorderChecked() ? true : false,
+      AvoidTollRoads: isCheckboxChecked() ? true : false,
       VehicleType: 7,
       AllowRelaxRestrictions: false,
       GetDrivingDirections: true,
@@ -304,7 +304,6 @@ const LocationLookup = ({ onTripResults }) => {
         <MySelect
           onSelectChange={handleSelectChange}
         />
-       
 
         <label className="flex justify-center">
           <div style={{ background: "#f44336" }} className="w-60 rounded-sm m-1 p-1">

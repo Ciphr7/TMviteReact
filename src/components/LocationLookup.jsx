@@ -5,7 +5,7 @@ import { CheckIcon } from "@radix-ui/react-icons";
 import { lookUpKey } from "./tmAPIKey";
 import ContactlessIcon from "@mui/icons-material/Contactless";
 import PropTypes from "prop-types";
-
+import TripResults from "./TripResults";
 import "./LocationLookup.css";
 import MySelect from "./RouteOptions";
 import { Button } from "@mui/material";
@@ -14,25 +14,12 @@ const LocationLookup = ({ onTripResults }) => {
 
   const [tollCheck, setTollCheck] = useState(false);
   const [borderCheck, setBorderCheck] = useState(false);
-  const [gpsCheck, setGPSCheck] = useState(false);
+  
+  const handleGPSboxChange = () => {
+    const { isGPSChecked } = state;
+    setState((prevState) => ({ ...prevState, isGPSChecked: !isGPSChecked }));
 
- 
-
-  const handleGPSChange = () => {
-    if (gpsCheck) {
-      // Checkbox is checked, get geolocation
-      setState((prevState) => ({ ...prevState, locationValue: null, suggestions: [] }));
-    } else {
-      //setGPSCheck
-      // Checkbox is not checked, set locationValue to null
-      getGeolocation();
-    }
-  };
-  const handleCheckboxChange = () => {
-    const { isChecked } = state;
-    setState((prevState) => ({ ...prevState, isChecked: !isChecked }));
-
-    if (isChecked) {
+    if (isGPSChecked) {
       setState((prevState) => ({ ...prevState, locationValue: null, suggestions: [] }));
     } else {
       getGeolocation();
@@ -45,7 +32,7 @@ const LocationLookup = ({ onTripResults }) => {
     setTollCheck(!tollCheck);
   };
 
-  const isCheckboxChecked = () => {
+  const isTollChecked = () => {
     return tollCheck;
   };
 
@@ -66,7 +53,7 @@ const LocationLookup = ({ onTripResults }) => {
     setSelectedValue(selected);
   };
   const [state, setState] = useState({
-    isChecked: false,
+    isGPSChecked: false,
     locationValue: null,
     loc2Value: null,
     suggestions: [],
@@ -175,7 +162,7 @@ const LocationLookup = ({ onTripResults }) => {
   
 
   const testRunTrip = () => {
-    const { locationValue, loc2Value, isChecked } = state;
+    const { locationValue, loc2Value, isGPSChecked } = state;
 
     const trip = {
       TripLegs: [
@@ -189,11 +176,11 @@ const LocationLookup = ({ onTripResults }) => {
       UnitMPG: 6,
       RoutingMethod: selectedValue ? selectedValue.label : 'Practical',
       BorderOpen: isBorderChecked() ? true : false,
-      AvoidTollRoads: isCheckboxChecked() ? true : false,
+      AvoidTollRoads: isTollChecked() ? true : false,
       VehicleType: 7,
       AllowRelaxRestrictions: false,
       GetDrivingDirections: true,
-      GetMapPoints: false,
+      GetMapPoints: true,
       GetStateMileage: true,
       GetTripSummary: true,
       GetTruckStopsOnRoute: false,
@@ -220,7 +207,7 @@ const LocationLookup = ({ onTripResults }) => {
   };
 
   const {
-    isChecked,
+    
     locationValue,
     loc2Value,
     suggestions,
@@ -244,8 +231,8 @@ const LocationLookup = ({ onTripResults }) => {
               <div className="flex items-center ">
                 <Checkbox.Root
                   className="CheckboxRoot"
-                  checked={!state.isChecked}
-                  onChange={handleCheckboxChange}
+                  checked={!state.isGPSChecked}
+                  onChange={handleGPSboxChange}
                   id="c1"
                 >
                   <Checkbox.Root className="CheckboxRoot" id="c1">
@@ -345,7 +332,7 @@ const LocationLookup = ({ onTripResults }) => {
           </div>
           <br />
         </label>
-
+              
         <div>
           <Button onClick={testRunTrip}>Run Trip</Button>
         </div>

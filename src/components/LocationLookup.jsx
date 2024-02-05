@@ -5,7 +5,7 @@ import { CheckIcon } from "@radix-ui/react-icons";
 import { lookUpKey } from "./tmAPIKey";
 import ContactlessIcon from "@mui/icons-material/Contactless";
 import PropTypes from "prop-types";
-import TripResults from "./TripResults";
+import GoogleMap from "./GoogleMap"
 import "./LocationLookup.css";
 import MySelect from "./RouteOptions";
 import { Button } from "@mui/material";
@@ -16,12 +16,14 @@ const LocationLookup = ({ onTripResults }) => {
   const [borderCheck, setBorderCheck] = useState(false);
   
   const handleGPSboxChange = () => {
-    const { isGPSChecked } = state;
-    setState((prevState) => ({ ...prevState, isGPSChecked: !isGPSChecked }));
-
-    if (isGPSChecked) {
-      setState((prevState) => ({ ...prevState, locationValue: null, suggestions: [] }));
-    } else {
+    
+    setState((prevState) => ({
+      ...prevState,
+      isGPSChecked: !prevState.isGPSChecked,
+      locationValue: prevState.isGPSChecked ? null : prevState.locationValue,
+    }));
+  
+    if (!state.isGPSChecked) {
       getGeolocation();
     }
   };
@@ -158,8 +160,9 @@ const LocationLookup = ({ onTripResults }) => {
       suggestions2: [selectedValue2],
     }));
   };
-
   
+  const [tripResults, setTripResults] = useState(null);
+  const mapContainerRef = React.createRef();
 
   const testRunTrip = () => {
     const { locationValue, loc2Value, isGPSChecked } = state;
@@ -200,6 +203,7 @@ const LocationLookup = ({ onTripResults }) => {
         setState((prevState) => ({ ...prevState, tripResults: data }));
         onTripResults(data);
         
+              
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -335,6 +339,7 @@ const LocationLookup = ({ onTripResults }) => {
               
         <div>
           <Button onClick={testRunTrip}>Run Trip</Button>
+          {/* {tripResults? tripResults: null} */}
         </div>
       </div>
     </>
@@ -343,6 +348,7 @@ const LocationLookup = ({ onTripResults }) => {
 
 LocationLookup.propTypes = {
   onTripResults: PropTypes.func.isRequired,
+  
 };
 
 export default LocationLookup;

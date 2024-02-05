@@ -1,70 +1,10 @@
+import React, { useState, useEffect } from "react";
 import tmLogo from "../images/tmLogo.png";
-import { useEffect, useRef } from "react";
+import GoogleMap from "./GoogleMap"
 
 const TripResults = ({ tripResults }) => {
-  const mapRef = useRef(null);
-  const markerOrgRef = useRef(null);
-  const markerDestRef = useRef(null);
-  const polylineRef = useRef(null);
 
-  useEffect(() => {
-    const mapOptions = {
-      center: new window.google.maps.LatLng(
-        tripResults.MapPoints[0].Lat,
-        tripResults.MapPoints[0].Lon
-      ),
-      zoom: 10,
-      mapTypeId: window.google.maps.MapTypeId.ROADMAP,
-    };
 
-    const map = new window.google.maps.Map(mapRef.current, mapOptions);
-    const bounds = new window.google.maps.LatLngBounds();
-
-    const oLat = tripResults.MapPoints[0].Lat;
-    const oLon = tripResults.MapPoints[0].Lon;
-    const dLat = tripResults.MapPoints[tripResults.MapPoints.length - 1].Lat;
-    const dLon = tripResults.MapPoints[tripResults.MapPoints.length - 1].Lon;
-
-    if (markerOrgRef.current) {
-      markerOrgRef.current.setMap(null);
-    }
-    if (markerDestRef.current) {
-      markerDestRef.current.setMap(null);
-    }
-
-    markerOrgRef.current = new window.google.maps.Marker({
-      position: new window.google.maps.LatLng(oLat, oLon),
-      title: tripResults.OriginLabel,
-      map,
-    });
-    bounds.extend(markerOrgRef.current.position);
-
-    markerDestRef.current = new window.google.maps.Marker({
-      position: new window.google.maps.LatLng(dLat, dLon),
-      title: tripResults.DestinationLabel,
-      map,
-    });
-
-    if (polylineRef.current && map) {
-      polylineRef.current.setMap(null);
-    }
-    bounds.extend(markerDestRef.current.position);
-
-    const points = tripResults.MapPoints.map(
-      (point) => new window.google.maps.LatLng(point.Lat, point.Lon)
-    );
-
-    polylineRef.current = new window.google.maps.Polyline({
-      path: points,
-      editable: false,
-      draggable: true,
-      strokeColor: "#ed1c24",
-      strokeWeight: 3,
-      map,
-    });
-
-    map.fitBounds(bounds);
-  }, [tripResults]);
 
   return (
     <>
@@ -132,7 +72,8 @@ const TripResults = ({ tripResults }) => {
         <p>No trip results available yet.</p>
       )}
     </div>
-     <div ref={mapRef} style={{ height: '400px', width: '100%' }} />;
+    
+     {/* <div ref={mapRef} style={{ height: '400px', width: '100%' }} />; */}
      </>
   );
 };

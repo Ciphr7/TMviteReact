@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import tmLogo from "../images/tmLogo.png";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { CheckIcon } from "@radix-ui/react-icons";
-import { lookUpKey } from "./tmAPIKey";
+import { lookUpKey, tmAPIKey } from "./tmAPIKey";
 import ContactlessIcon from "@mui/icons-material/Contactless";
 import PropTypes from "prop-types";
 import GoogleMap from "./GoogleMap"
@@ -188,7 +188,7 @@ const LocationLookup = ({ onTripResults }) => {
       GetTripSummary: true,
       GetTruckStopsOnRoute: false,
       GetFuelOptimization: false,
-      apikey: "TkkxbFNheDE2bndSTkwvbncrWFZGZz090",
+      apikey: tmAPIKey,
     };
 
     fetch("https://prime.promiles.com/WebAPI/api/RunTrip", {

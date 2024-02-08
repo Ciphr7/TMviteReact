@@ -7,7 +7,7 @@ import LocationLookup from "./LocationLookup";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import TripResults from "./TripResults";
-
+import GoogleMapComponent from './GoogleMap';
 
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 
@@ -60,6 +60,8 @@ const Footer = () => {
     <footer
       style={{ background: "#3c3c3c", color: "#000", padding: "2px 0px" }}
     >
+
+<GoogleMapComponent id='main' tripResults={tripResults}  />
       <Card
         style={{
           margin: "1rem 5rem",

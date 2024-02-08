@@ -9,18 +9,31 @@ const GoogleMapComponent = ({ tripResults }) => {
   const polylineRef = useRef(null);
 
   useEffect(() => {
+    // Clear previous markers and polyline if they exist
+    if (markers.length > 0) {
+      markers.forEach(marker => marker.setMap(null)); // Remove markers from the map
+      setMarkers([]); // Clear markers state
+    }
+    if (polylineRef.current) {
+      polylineRef.current.setMap(null); // Remove polyline from the map
+    }
+
     if (mapRef.current && tripResults && tripResults.MapPoints && tripResults.MapPoints.length > 0) {
-      const bounds = new window.google.maps.LatLngBounds();
-      const points = tripResults.MapPoints.map(point => new window.google.maps.LatLng(point.Lat, point.Lon));
+      const points = tripResults.MapPoints.map(point => ({ lat: point.Lat, lng: point.Lon }));
 
       // Create markers for origin and destination
       const origin = tripResults.MapPoints[0];
       const destination = tripResults.MapPoints[tripResults.MapPoints.length - 1];
       const newMarkers = [
-        { position: { lat: origin.Lat, lng: origin.Lon }, title: tripResults.OriginLabel },
-        { position: { lat: destination.Lat, lng: destination.Lon }, title: tripResults.DestinationLabel },
+        new window.google.maps.Marker({ position: { lat: origin.Lat, lng: origin.Lon }, title: tripResults.OriginLabel }),
+        new window.google.maps.Marker({ position: { lat: destination.Lat, lng: destination.Lon }, title: tripResults.DestinationLabel }),
       ];
       setMarkers(newMarkers);
+
+      // Set the map for markers
+      newMarkers.forEach(marker => {
+        marker.setMap(mapRef.current);
+      });
 
       // Create a new polyline
       const newPolyline = new window.google.maps.Polyline({
@@ -31,23 +44,15 @@ const GoogleMapComponent = ({ tripResults }) => {
       });
       polylineRef.current = newPolyline;
 
-      // Extend bounds with polyline points
-      points.forEach(point => bounds.extend(point));
-
-      // Set the center and zoom directly on the map instance
-      mapRef.current.fitBounds(bounds);
-
-      // Set the map for markers
-      newMarkers.forEach(marker => {
-        new window.google.maps.Marker({
-          position: marker.position,
-          title: marker.title,
-          map: mapRef.current,
-        });
-      });
-
       // Set the map for polyline
       newPolyline.setMap(mapRef.current);
+
+      // Calculate bounds manually based on polyline's path
+      const bounds = new window.google.maps.LatLngBounds();
+      points.forEach(point => bounds.extend(point));
+      
+      // Zoom map to fit the bounds
+      mapRef.current.fitBounds(bounds);
     }
   }, [tripResults]);
 
@@ -73,15 +78,6 @@ const GoogleMapComponent = ({ tripResults }) => {
           center={{ lat: 39.8282, lng: -98.5795 }}
           onLoad={onLoad}
         >
-          {markers.map((marker, index) => (
-            <Marker key={index} position={marker.position} title={marker.title} />
-          ))}
-          {polylineRef.current && (
-            <Polyline
-              path={polylineRef.current.getPath().getArray()}
-              options={{ strokeColor: "#ed1c24", strokeWeight: 3 }}
-            />
-          )}
         </GoogleMap>
       </LoadScript>
     </div>

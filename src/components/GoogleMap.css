@@ -1,0 +1,4 @@
+.map-container {
+    height: calc(100vh - 325px); /* Adjust the height as needed, subtracting the height of other fixed elements if necessary */
+    width: 100%;
+  }

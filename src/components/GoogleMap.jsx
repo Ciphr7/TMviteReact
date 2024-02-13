@@ -4,73 +4,79 @@ import { apiKey } from "./googleApiKey";
 
 const GoogleMapComponent = ({ tripResults }) => {
   const [map, setMap] = useState(null);
-  const mapRef = useRef(null);
-  const [markers, setMarkers] = useState([]);
+  const markersRef = useRef([]);
   const polylineRef = useRef(null);
+  const mapRef = useRef(null);
 
   useEffect(() => {
-    // Clear previous markers and polyline if they exist
-    if (markers.length > 0) {
-      markers.forEach(marker => marker.setMap(null)); // Remove markers from the map
-      setMarkers([]); // Clear markers state
-    }
-    if (polylineRef.current) {
-      polylineRef.current.setMap(null); // Remove polyline from the map
-    }
+    console.log("Trip map results changed:", tripResults);  
+    updateMap(tripResults);  
+  }, [tripResults]); 
 
+  const updateMap = (tripResults) => {
+    console.log("Updating map with new trip results:", tripResults); 
     if (mapRef.current && tripResults && tripResults.MapPoints && tripResults.MapPoints.length > 0) {
-      const points = tripResults.MapPoints.map(point => ({ lat: point.Lat, lng: point.Lon }));
-
-      // Create markers for origin and destination
-      const origin = tripResults.MapPoints[0];
-      const destination = tripResults.MapPoints[tripResults.MapPoints.length - 1];
+      const bounds = new window.google.maps.LatLngBounds();
+      const points = tripResults.MapPoints.map((point) => new window.google.maps.LatLng(point.Lat, point.Lon));
+      
+      const oLat = tripResults.MapPoints[0].Lat;
+      const oLon = tripResults.MapPoints[0].Lon;
+      const dLat = tripResults.MapPoints[tripResults.MapPoints.length - 1].Lat;
+      const dLon = tripResults.MapPoints[tripResults.MapPoints.length - 1].Lon;
+      
       const newMarkers = [
-        new window.google.maps.Marker({ position: { lat: origin.Lat, lng: origin.Lon }, title: tripResults.OriginLabel }),
-        new window.google.maps.Marker({ position: { lat: destination.Lat, lng: destination.Lon }, title: tripResults.DestinationLabel }),
+        { position: { lat: oLat, lng: oLon }, title: tripResults.OriginLabel },
+        { position: { lat: dLat, lng: dLon }, title: tripResults.DestinationLabel },
       ];
-      setMarkers(newMarkers);
-
-      // Set the map for markers
-      newMarkers.forEach(marker => {
-        marker.setMap(mapRef.current);
-      });
-
-      // Create a new polyline
+      
+      markersRef.current = newMarkers;
+      
+      // Clear previous polyline
+      if (polylineRef.current) {
+        polylineRef.current.setMap('');
+      }
+      
       const newPolyline = new window.google.maps.Polyline({
         path: points,
         editable: false,
         strokeColor: "#ed1c24",
         strokeWeight: 3,
       });
-      polylineRef.current = newPolyline;
-
-      // Set the map for polyline
-      newPolyline.setMap(mapRef.current);
-
-      // Calculate bounds manually based on polyline's path
-      const bounds = new window.google.maps.LatLngBounds();
-      points.forEach(point => bounds.extend(point));
       
-      // Zoom map to fit the bounds
+      polylineRef.current = newPolyline;
+      
+      newMarkers.forEach((marker) => {
+        const newMarker = new window.google.maps.Marker({
+          position: marker.position,
+          title: marker.title,
+          map: mapRef.current,
+        });
+        bounds.extend(newMarker.getPosition());
+      });
+      
+      newPolyline.setMap(mapRef.current);
+      
+      // Update map bounds
       mapRef.current.fitBounds(bounds);
     }
-  }, [tripResults]);
+  };
+
+  const onLoad = (map) => {
+    setMap(map);
+    mapRef.current = map;
+  };
 
   const mapStyles = {
     height: "calc(var(--vh, 1vh) * 60)",
     width: "100%",
   };
 
-  const onLoad = map => {
-    setMap(map);
-    mapRef.current = map;
-  };
-
   return (
     <div style={mapStyles}>
       <LoadScript
         googleMapsApiKey={apiKey}
-        onLoad={() => console.log("Google Maps API loaded successfully")} // Add onLoad callback for debugging
+        loadingElement={<div>Loading...</div>}
+        async
       >
         <GoogleMap
           mapContainerStyle={mapStyles}
@@ -78,6 +84,15 @@ const GoogleMapComponent = ({ tripResults }) => {
           center={{ lat: 39.8282, lng: -98.5795 }}
           onLoad={onLoad}
         >
+          {markersRef.current.map((marker, index) => (
+            <Marker key={index} position={marker.position} title={marker.title} />
+          ))}
+          {polylineRef.current && (
+            <Polyline
+              path={polylineRef.current.getPath().getArray()}
+              options={{ strokeColor: "#ed1c24", strokeWeight: 3 }}
+            />
+          )}
         </GoogleMap>
       </LoadScript>
     </div>

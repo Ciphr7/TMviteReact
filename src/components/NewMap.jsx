@@ -37,23 +37,22 @@ const GoogleMapComponent = ({ tripResults }) => {
     setPolylinePoints(newPolylinePoints);
     
     // Clear previous markers and polyline
-    if (startMarker) {
-      setStartMarker(null);
-    }
-    if (endMarker) {
-      setEndMarker(null);
-    }
+    setStartMarker({ lat: oLat, lng: oLon });
+    setEndMarker({ lat: dLat, lng: dLon });
+
+    // Draw polyline
+    drawPolyline(newPolylinePoints);
+  };
+  
+  const drawPolyline = (points) => {
+    // Clear previous polyline
     if (polylineRef.current) {
       polylineRef.current.setMap(null);
     }
-  
-    // Set start and end markers
-    setStartMarker({ lat: oLat, lng: oLon });
-    setEndMarker({ lat: dLat, lng: dLon });
-  
+
     // Draw new polyline
     const polyline = new window.google.maps.Polyline({
-      path: newPolylinePoints,
+      path: points,
       geodesic: true,
       strokeColor: "#ed1c24",
       strokeOpacity: 1.0,
@@ -61,19 +60,13 @@ const GoogleMapComponent = ({ tripResults }) => {
     });
     polyline.setMap(mapRef.current);
     polylineRef.current = polyline;
-  
+
     // Calculate bounds of the polyline
     const bounds = new window.google.maps.LatLngBounds();
-    newPolylinePoints.forEach((point) => bounds.extend(point));
-  
+    points.forEach((point) => bounds.extend(point));
+
     // Fit the map to the bounds of the polyline
     mapRef.current.fitBounds(bounds);
-  };
-  
-
-  const mapStyles = {
-    height: "100vh",
-    width: "100%"
   };
 
   return (
@@ -90,6 +83,7 @@ const GoogleMapComponent = ({ tripResults }) => {
       >
         {startMarker && (
           <Marker
+            key="start"
             lat={startMarker.lat}
             lng={startMarker.lng}
             text="S"
@@ -97,6 +91,7 @@ const GoogleMapComponent = ({ tripResults }) => {
         )}
         {endMarker && (
           <Marker
+            key="end"
             lat={endMarker.lat}
             lng={endMarker.lng}
             text="E"

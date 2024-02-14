@@ -1,15 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { GoogleMap, LoadScript, Marker, Polyline } from "@react-google-maps/api";
 import { apiKey } from "./googleApiKey";
 import "./GoogleMap.css";
 
 const GoogleMapComponent = ({ tripResults }) => {
-  const [map, setMap] = useState(null);
-  const [polylinePoints, setPolylinePoints] = useState([]);
-  const [startMarker, setStartMarker] = useState(null);
-  const [endMarker, setEndMarker] = useState(null);
-  const [polyline, setPolyline] = useState(null);
   const mapRef = useRef(null);
+  const polylineRef = useRef(null);
+  const startMarkerRef = useRef(null);
+  const endMarkerRef = useRef(null);
 
   useEffect(() => {
     if (mapRef.current && tripResults && tripResults.MapPoints && tripResults.MapPoints.length > 0) {
@@ -18,47 +16,55 @@ const GoogleMapComponent = ({ tripResults }) => {
   }, [tripResults]);
 
   const updateMap = (tripResults) => {
-    const points = tripResults.MapPoints.map((point) => new window.google.maps.LatLng(point.Lat, point.Lon));
-
-    const oLat = tripResults.MapPoints[0].Lat;
-    const oLon = tripResults.MapPoints[0].Lon;
-    const dLat = tripResults.MapPoints[tripResults.MapPoints.length - 1].Lat;
-    const dLon = tripResults.MapPoints[tripResults.MapPoints.length - 1].Lon;
-
+    const mapPoints = tripResults && tripResults.MapPoints ? tripResults.MapPoints : [];
+  
+    // Validate and filter out invalid coordinates
+    const validPoints = mapPoints.filter(point => typeof point.Lat === 'number' && typeof point.Lon === 'number');
+  
+    if (validPoints.length === 0) {
+      console.error("No valid coordinates found.");
+      return;
+    }
+  
+    const points = validPoints.map((point) => new window.google.maps.LatLng(point.Lat, point.Lon));
+  
+    const oLat = validPoints[0].Lat;
+    const oLon = validPoints[0].Lon;
+    const dLat = validPoints[validPoints.length - 1].Lat;
+    const dLon = validPoints[validPoints.length - 1].Lon;
+  
     const newPolylinePoints = [
       { lat: oLat, lng: oLon },
       ...points,
       { lat: dLat, lng: dLon }
     ];
-
-    setPolylinePoints(newPolylinePoints);
-    
+  
     // Clear previous polyline and markers
-    if (polyline) {
-      polyline.setMap(null);
+    if (polylineRef.current) {
+      polylineRef.current.setMap(null);
     }
-    if (startMarker) {
-      startMarker.setMap(null);
+    if (startMarkerRef.current) {
+      startMarkerRef.current.setMap(null);
     }
-    if (endMarker) {
-      endMarker.setMap(null);
+    if (endMarkerRef.current) {
+      endMarkerRef.current.setMap(null);
     }
-
+  
     // Set start and end markers
-    const newStartMarker = new window.google.maps.Marker({
+    const startMarker = new window.google.maps.Marker({
       position: { lat: oLat, lng: oLon },
       map: mapRef.current,
       label: 'S' // Labeling it as 'S' for start
     });
-    setStartMarker(newStartMarker);
-
-    const newEndMarker = new window.google.maps.Marker({
+    startMarkerRef.current = startMarker;
+  
+    const endMarker = new window.google.maps.Marker({
       position: { lat: dLat, lng: dLon },
       map: mapRef.current,
       label: 'E' // Labeling it as 'E' for end
     });
-    setEndMarker(newEndMarker);
-
+    endMarkerRef.current = endMarker;
+  
     // Create new polyline
     const newPolyline = new window.google.maps.Polyline({
       path: newPolylinePoints,
@@ -66,19 +72,19 @@ const GoogleMapComponent = ({ tripResults }) => {
       strokeColor: "#ed1c24",
       strokeWeight: 3,
     });
-    setPolyline(newPolyline);
-
-    // Calculate center of polyline
+    polylineRef.current = newPolyline;
+  
+    // Calculate bounds of the polyline
     const bounds = new window.google.maps.LatLngBounds();
     newPolylinePoints.forEach((point) => bounds.extend(point));
-    const center = bounds.getCenter();
-
-    // Set map center to the calculated center
-    mapRef.current.panTo(center);
+  
+    // Fit the map to the bounds of the polyline
+    mapRef.current.fitBounds(bounds);
   };
+  
+  
 
   const onLoad = (map) => {
-    setMap(map);
     mapRef.current = map;
   };
 
@@ -100,12 +106,10 @@ const GoogleMapComponent = ({ tripResults }) => {
           center={{ lat: 39.8282, lng: -98.5795 }}
           onLoad={onLoad}
         >
-          {polylinePoints.length > 0 && (
-            <Polyline
-              path={polylinePoints}
-              options={{ strokeColor: "#ed1c24", strokeWeight: 3 }}
-            />
-          )}
+          <Polyline
+            path={tripResults && tripResults.MapPoints ? tripResults.MapPoints : []}
+            options={{ strokeColor: "#ed1c24", strokeWeight: 3 }}
+          />
         </GoogleMap>
       </LoadScript>
     </div>

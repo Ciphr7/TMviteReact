@@ -1,13 +1,13 @@
 import React, { useRef, useEffect, useState } from "react";
 import vTruck from "../images/truck.png";
 import Box from "@mui/material/Box";
+import GoogleMap from "./GoogleMap"
 import Popper from "@mui/material/Popper";
 import Button from "@mui/material/Button";
 import LocationLookup from "./LocationLookup";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import TripResults from "./TripResults";
-
 import NewMap from "./NewMap"
 
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
@@ -60,10 +60,12 @@ const Footer = () => {
   return (
     <footer
       style={{ background: "#3c3c3c", color: "#000", padding: "2px 0px" }}
+
     >
+      <NewMap tripResults={tripResults} />
+{/* <GoogleMap tripResults={tripResults}  /> */}
 
-
-<NewMap tripResults={tripResults} />
+{/* <NewMap tripResults={tripResults} /> */}
       <Card
         style={{
           margin: "1rem 5rem",

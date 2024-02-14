@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
 import tmLogo from "../images/tmLogo.png";
-import GoogleMap from "./GoogleMap"
 
 const TripResults = ({ tripResults }) => {
-
-
 
   return (
     <>

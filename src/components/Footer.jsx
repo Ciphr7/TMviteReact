@@ -9,6 +9,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import TripResults from "./TripResults";
 import NewMap from "./NewMap"
+import FuelPrices from "./FuelPrices"
 
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 
@@ -21,12 +22,15 @@ const Footer = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const [anchorEl2, setAnchorEl2] = React.useState(null);
+  const [anchorEl3, setAnchorEl3] = React.useState(null);
 
   const [open, setOpen ] = React.useState(false);
   const [open2, setOpen2] = React.useState(false);
+  const [open3, setOpen3] = React.useState(false);
 
   const [placement, setPlacement] = React.useState();
   const [placement2, setPlacement2] = React.useState();
+  const [placement3, setPlacement3] = React.useState();
 
   const handleClick = (newPlacement) => (event) => {
     setAnchorEl(event.currentTarget);
@@ -40,10 +44,16 @@ const Footer = () => {
     setPlacement2(newPlacement);
   };
 
+  const handleClick3 = (newPlacement) => (event) => {
+    setAnchorEl3(event.currentTarget);
+    setOpen3((prev) => placement2 !== newPlacement || !prev);
+    setPlacement3(newPlacement);
+  };
 
 
   const id = open ? "simple-popover" : undefined;
   const id2 = open2 ? "simple-popover2" : undefined;
+  const id3 = open3 ? "simple-popover2" : undefined;
   // Create a ref to store the reference to the button element
   const buttonRef = useRef();
 
@@ -121,6 +131,25 @@ const Footer = () => {
                 Trip Summary
               </span>
             </Button>
+            <Button
+              style={{
+                background: "#3c3c3c",
+                padding: "5px 25px",
+                margin: "auto 1%",
+              }}
+              aria-describedby={id}
+              variant="contained"
+              onClick={handleClick3('top-start')}
+            >
+              <span>
+                <img
+                  className="w-15 h-10 pt-2 m-2"
+                  alt="TurckMiles Logo"
+                  src={vTruck}
+                />
+               Fuel Prices
+              </span>
+            </Button>
 
             <Popper
               style={{
@@ -153,6 +182,22 @@ const Footer = () => {
               <Box sx={{ border: 0, p: 1, bgcolor: "#3c3c3c" }}>
                 <TripResults tripResults={tripResults}  />
               
+              </Box>
+            </Popper>
+            <Popper
+              style={{
+                background: "transparent",
+                color: "#fff",
+                padding: "10px",
+              }}
+              id={id3}
+              open={open3}
+              anchorEl={anchorEl3}
+              placement={placement3}
+            >
+              <Box sx={{ border: 0, p: 1, bgcolor: "#3c3c3c" }}>
+                
+              <FuelPrices />
               </Box>
             </Popper>
             <p> ProMiles Software Development Corp&copy;2024</p>

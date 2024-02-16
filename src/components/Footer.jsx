@@ -10,9 +10,9 @@ import CardContent from "@mui/material/CardContent";
 import TripResults from "./TripResults";
 import NewMap from "./NewMap"
 import FuelPrices from "./FuelPrices"
-
+import RouteIcon from '@mui/icons-material/Route';
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-
+import AnalyticsIcon from '@mui/icons-material/Analytics';
 const Footer = () => {
   const [state, setState] = useState({
    
@@ -46,14 +46,14 @@ const Footer = () => {
 
   const handleClick3 = (newPlacement) => (event) => {
     setAnchorEl3(event.currentTarget);
-    setOpen3((prev) => placement2 !== newPlacement || !prev);
+    setOpen3((prev) => placement3 !== newPlacement || !prev);
     setPlacement3(newPlacement);
   };
 
 
   const id = open ? "simple-popover" : undefined;
   const id2 = open2 ? "simple-popover2" : undefined;
-  const id3 = open3 ? "simple-popover2" : undefined;
+  const id3 = open3 ? "simple-popover3" : undefined;
   // Create a ref to store the reference to the button element
   const buttonRef = useRef();
 
@@ -78,10 +78,11 @@ const Footer = () => {
 {/* <NewMap tripResults={tripResults} /> */}
       <Card
         style={{
-          margin: "1rem 5rem",
+          margin: "1rem 1rem",
           background: "#000 ",
           color: "white",
           padding: "1px 1px",
+          display: "inline-flex"
         }}
       >
         <CardContent>
@@ -90,65 +91,66 @@ const Footer = () => {
               background: "#f44336",
               padding: "1px 1%",
               margin: "auto auto",
+              display: "inline-flex"
             }}
           >
             <Button
               style={{
                 background: "#3c3c3c",
-                padding: "5px 25px",
-                margin: "auto 1%",
+                padding: "2px 2px",
+                margin: "1px 1%",
               }}
               aria-describedby={id}
               variant="contained"
               onClick={handleClick('top-end')}
-            >
-              <span>
-                <img
-                  className="w-15 h-10 pt-2 m-2"
-                  alt="TurckMiles Logo"
-                  src={vTruck}
-                />
-                New Trip
-              </span>
+            >New Trip
+              <LocalShippingIcon style={{
+                background: "#3c3c3c",
+                padding: "2px 2px",
+                margin: "1px 1%",
+              }} />
+             
+              
             </Button>
             
             <Button
               style={{
                 background: "#3c3c3c",
-                padding: "5px 25px",
-                margin: "auto 1%",
+                padding: "2px 2px",
+                margin: "1px 1%",
               }}
               aria-describedby={id}
               variant="contained"
               onClick={handleClick2('top-start')}
             >
-              <span>
-                <img
-                  className="w-15 h-10 pt-2 m-2"
-                  alt="TurckMiles Logo"
-                  src={vTruck}
-                />
+            
                 Trip Summary
-              </span>
+                <RouteIcon 
+                style={{
+                  background: "#3c3c3c",
+                  padding: "2px 2px",
+                  margin: "1px 1%",
+                }}
+                />
+              
             </Button>
             <Button
               style={{
                 background: "#3c3c3c",
-                padding: "5px 25px",
-                margin: "auto 1%",
+                padding: "2px 2px",
+                margin: "1px 1%",
               }}
               aria-describedby={id}
               variant="contained"
-              onClick={handleClick3('top-start')}
-            >
-              <span>
-                <img
-                  className="w-15 h-10 pt-2 m-2"
-                  alt="TurckMiles Logo"
-                  src={vTruck}
-                />
-               Fuel Prices
-              </span>
+              onClick={handleClick3('')}
+            >Fuel Prices
+             <AnalyticsIcon style={{
+                background: "#3c3c3c",
+                padding: "2px 2px",
+                margin: "1px 1%",
+              }} />
+               
+              
             </Button>
 
             <Popper
@@ -192,18 +194,26 @@ const Footer = () => {
               }}
               id={id3}
               open={open3}
-              anchorEl={anchorEl3}
-              placement={placement3}
+              anchorEl={anchorEl}
+              anchorOrigin={{
+                vertical: 'center',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'center',
+                horizontal: 'right',
+              }}
             >
               <Box sx={{ border: 0, p: 1, bgcolor: "#3c3c3c" }}>
                 
               <FuelPrices />
               </Box>
             </Popper>
+            </div>
             <p> ProMiles Software Development Corp&copy;2024</p>
 
             <a href="/about">About</a>
-          </div>
+          
         </CardContent>
       </Card>
     </footer>

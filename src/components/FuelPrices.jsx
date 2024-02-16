@@ -10,6 +10,9 @@ import {
   Paper,
 } from '@mui/material';
 
+import MyToken from './Token';
+import { Token } from '@mui/icons-material';
+
 const CorsExample = () => {
   const [loading, setLoading] = useState(true);
   const [responseData, setResponseData] = useState([]);
@@ -29,7 +32,7 @@ const CorsExample = () => {
     const apiUrl = '/api/Averages/StateAverages'; // Use the proxy path
 
     const username = 'truckmiles';
-    const authorizationToken = 'JLoRvcSi_MvlNHGCHSNPpp0xf2DFvcbjjaI-UhHhLRo7Bpeh7ftaSwGWWjU7cVdNL439d_mcgFoZNGVhn_Jd-Qh9OOtgW2ez29RcvrQK5xMya3oqsWXMlwhl0nOjCnXK0LvsrixGVKW0h20y_fmd8bDIF-1weMbb3hwtQ8Oqhjv1jf6CHs4dwSjVuLW0p8ND-H_nb6DaiHqZ-dWh7gfXatOEqXBN2_hmVum5wRXbsRg'; // Replace with your actual authorization token
+    const authorizationToken = ' 8L3h3dsqh1wxBPU_pwxIg8ahd74Sz1h_AKq8ISX9xddqUKtE9eWzU7hoAQvBlAhS90nQXibQVG2mbQnRsd-caNLfbSHWEg_eM17V0i5QTrmlqZYMybSACZk6o3-SRj4oP5USe8bIw6vCLgn82hRfxnnukTLA4SRk-9vSf5ZfiCwEETjY2LLSkqbaseUb67U6xsgxnHHFXpkle6HjKOslgJ2su6yXdE8pDgLLCzVuDPE'; // Replace with your actual authorization token
 
     const requestOptions = {
       method: 'POST',
@@ -97,6 +100,7 @@ const CorsExample = () => {
   };
 
   return (
+    <>
     <div style={{ maxHeight: "400px", overflowY: "scroll" }}>
       {loading ? (
         <CircularProgress />
@@ -123,6 +127,10 @@ const CorsExample = () => {
         </TableContainer>
       )}
     </div>
+    <div>
+      <MyToken />
+    </div>
+    </>
   );
 };
 

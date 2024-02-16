@@ -5,7 +5,7 @@ import { CheckIcon } from "@radix-ui/react-icons";
 import { lookUpKey, tmAPIKey } from "./tmAPIKey";
 import ContactlessIcon from "@mui/icons-material/Contactless";
 import PropTypes from "prop-types";
-import GoogleMap from "./GoogleMap"
+import MyLocationIcon from '@mui/icons-material/MyLocation';
 import "./LocationLookup.css";
 import MySelect from "./RouteOptions";
 import { Button } from "@mui/material";
@@ -248,7 +248,8 @@ const LocationLookup = ({ onTripResults }) => {
                 <label className="Label whitespace-nowrap " htmlFor="c1">
                   Start at my GPS Location
                 </label>
-                <ContactlessIcon className="text-white ml-auto" />
+              
+                <MyLocationIcon className="text-white ml-auto"/>
               </div>
             </form>
           </div>

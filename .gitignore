@@ -8,7 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 src/components/tmAPIKey.js
 src/components/googleApiKey.js
-src/components/Token.js
+src/components/Token.jsx
 node_modules
 dist
 dist-ssr

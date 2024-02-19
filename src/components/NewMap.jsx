@@ -17,40 +17,41 @@ const GoogleMapComponent = ({ tripResults }) => {
     }
   }, [tripResults]);
 
+  const MyComp = ({ text }) => (
+    <div style={{ color: 'white', background: 'blue', padding: '5px 10px', display: 'inline-flex', textAlign: 'center', alignItems: 'center', justifyContent: 'center', borderRadius: '100%', transform: 'translate(-50%, -50%)' }} >
+      {text}
+    </div>
+  );
+
   const updateMap = (tripResults) => {
     const points = tripResults.MapPoints.map((point) => ({
       lat: point.Lat,
       lng: point.Lon
     }));
-  
+
     const oLat = tripResults.MapPoints[0].Lat;
     const oLon = tripResults.MapPoints[0].Lon;
     const dLat = tripResults.MapPoints[tripResults.MapPoints.length - 1].Lat;
     const dLon = tripResults.MapPoints[tripResults.MapPoints.length - 1].Lon;
-  
+
     const newPolylinePoints = [
       { lat: oLat, lng: oLon },
       ...points,
       { lat: dLat, lng: dLon }
     ];
-  
+
     setPolylinePoints(newPolylinePoints);
-    
-    // Clear previous markers and polyline
     setStartMarker({ lat: oLat, lng: oLon });
     setEndMarker({ lat: dLat, lng: dLon });
 
-    // Draw polyline
     drawPolyline(newPolylinePoints);
   };
   
   const drawPolyline = (points) => {
-    // Clear previous polyline
     if (polylineRef.current) {
       polylineRef.current.setMap(null);
     }
 
-    // Draw new polyline
     const polyline = new window.google.maps.Polyline({
       path: points,
       geodesic: true,
@@ -61,13 +62,15 @@ const GoogleMapComponent = ({ tripResults }) => {
     polyline.setMap(mapRef.current);
     polylineRef.current = polyline;
 
-    // Calculate bounds of the polyline
     const bounds = new window.google.maps.LatLngBounds();
     points.forEach((point) => bounds.extend(point));
-
-    // Fit the map to the bounds of the polyline
     mapRef.current.fitBounds(bounds);
   };
+
+  useEffect(() => {
+    console.log("startMarker:", startMarker);
+    console.log("endMarker:", endMarker);
+  }, [startMarker, endMarker]);
 
   return (
     <div className="map-container">
@@ -81,31 +84,21 @@ const GoogleMapComponent = ({ tripResults }) => {
           mapRef.current = map;
         }}
       >
-        {startMarker && (
-          <Marker
-            key="start"
-            lat={startMarker.lat}
-            lng={startMarker.lng}
-            text="S"
-          />
-        )}
-        {endMarker && (
-          <Marker
-            key="end"
-            lat={endMarker.lat}
-            lng={endMarker.lng}
-            text="E"
-          />
-        )}
+        <MyComp
+          key="start"
+          lat={startMarker ? startMarker.lat : 0}
+          lng={startMarker ? startMarker.lng : 0}
+          text='start'
+        />
+        <MyComp
+          key="end"
+          lat={endMarker ? endMarker.lat : 0}
+          lng={endMarker ? endMarker.lng : 0}
+          text="end"
+        />
       </GoogleMapReact>
     </div>
   );
 };
-
-const Marker = ({ text }) => (
-  <div style={{ color: 'white', background: 'blue', padding: '5px 10px', display: 'inline-flex', textAlign: 'center', alignItems: 'center', justifyContent: 'center', borderRadius: '100%', transform: 'translate(-50%, -50%)' }}>
-    {text}
-  </div>
-);
 
 export default GoogleMapComponent;

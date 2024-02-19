@@ -32,7 +32,7 @@ const CorsExample = () => {
     const apiUrl = '/api/Averages/StateAverages'; // Use the proxy path
 
     const username = 'truckmiles';
-    const authorizationToken = ' 8L3h3dsqh1wxBPU_pwxIg8ahd74Sz1h_AKq8ISX9xddqUKtE9eWzU7hoAQvBlAhS90nQXibQVG2mbQnRsd-caNLfbSHWEg_eM17V0i5QTrmlqZYMybSACZk6o3-SRj4oP5USe8bIw6vCLgn82hRfxnnukTLA4SRk-9vSf5ZfiCwEETjY2LLSkqbaseUb67U6xsgxnHHFXpkle6HjKOslgJ2su6yXdE8pDgLLCzVuDPE'; // Replace with your actual authorization token
+    const authorizationToken = ""; // Replace with your actual authorization token
 
     const requestOptions = {
       method: 'POST',
@@ -128,6 +128,7 @@ const CorsExample = () => {
       )}
     </div>
     <div>
+      <Token />
       <MyToken />
     </div>
     </>

@@ -13,6 +13,10 @@ import FuelPrices from "./FuelPrices"
 import RouteIcon from '@mui/icons-material/Route';
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import AnalyticsIcon from '@mui/icons-material/Analytics';
+import './Footer.css'
+
+
+
 const Footer = () => {
   const [state, setState] = useState({
    
@@ -72,10 +76,11 @@ const Footer = () => {
       style={{ background: "#3c3c3c", color: "#000", padding: "2px 0px" }}
 
     >
-      <NewMap tripResults={tripResults} />
-{/* <GoogleMap tripResults={tripResults}  /> */}
+      {/* <NewMap tripResults={tripResults} /> */}
 
-{/* <NewMap tripResults={tripResults} /> */}
+
+      <GoogleMap tripResults={tripResults}  />
+      {/* <NewMap tripResults={tripResults} /> */}
       <Card
         style={{
           margin: "1rem 1rem",
@@ -154,6 +159,7 @@ const Footer = () => {
             </Button>
 
             <Popper
+            className="popper"
               style={{
                 background: "transparent",
                 color: "#fff",
@@ -171,6 +177,7 @@ const Footer = () => {
               </Box>
             </Popper>
             <Popper
+            className="popper"
               style={{
                 background: "transparent",
                 color: "#fff",
@@ -181,7 +188,7 @@ const Footer = () => {
               anchorEl={anchorEl2}
               placement={placement2}
             >
-              <Box sx={{ border: 0, p: 1, bgcolor: "#3c3c3c" }}>
+              <Box className="popper-content" sx={{ border: 0, p: 1, bgcolor: "#3c3c3c" }}>
                 <TripResults tripResults={tripResults}  />
               
               </Box>
@@ -216,6 +223,7 @@ const Footer = () => {
           
         </CardContent>
       </Card>
+     
     </footer>
   );
 };

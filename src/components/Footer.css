@@ -1,0 +1,15 @@
+/* CSS for Popper components */
+.popper {
+    position: absolute; /* Position the Popper absolutely */
+    z-index: 999; /* Ensure Popper components appear above other content */
+  }
+  
+  /* Example styling for Popper content */
+  .popper-content {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+  }
+  
+  /* Adjust positioning and styling as needed */
+  

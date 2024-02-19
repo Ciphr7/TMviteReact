@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useMemo } from "react";
-import { GoogleMap, LoadScript, Marker, Polyline } from "@react-google-maps/api";
+import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import { apiKey } from "./googleApiKey";
 import "./GoogleMap.css";
 
@@ -105,17 +105,11 @@ const GoogleMapComponent = ({ tripResults }) => {
           zoom={4}
           center={{ lat: 39.8282, lng: -98.5795 }}
           onLoad={onLoad}
-        >
-          {tripResults && tripResults.MapPoints &&
-            <Polyline
-              path={tripResults.MapPoints.filter(point => typeof point.Lat === 'number' && typeof point.Lon === 'number').map(point => ({ lat: point.Lat, lng: point.Lon }))}
-              options={{ strokeColor: "#ed1c24", strokeWeight: 3 }}
-            />
-          }
-        </GoogleMap>
+        />
       </LoadScript>
     </div>
-  ), [tripResults]);
+  ), []);
+
 };
 
 export default React.memo(GoogleMapComponent);

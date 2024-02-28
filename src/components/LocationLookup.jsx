@@ -3,32 +3,30 @@ import tmLogo from "../images/tmLogo.png";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { CheckIcon } from "@radix-ui/react-icons";
 import { lookUpKey, tmAPIKey } from "./tmAPIKey";
-import ContactlessIcon from "@mui/icons-material/Contactless";
+
 import PropTypes from "prop-types";
-import MyLocationIcon from '@mui/icons-material/MyLocation';
+import MyLocationIcon from "@mui/icons-material/MyLocation";
 import "./LocationLookup.css";
 import MySelect from "./RouteOptions";
 import { Button } from "@mui/material";
 
-const LocationLookup = ({ onTripResults }) => {
-
+const LocationLookup = ({ onTripResults, closePopper }) => {
+  const [buttonClicked, setButtonClicked] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [tollCheck, setTollCheck] = useState(false);
   const [borderCheck, setBorderCheck] = useState(false);
-  
+
   const handleGPSboxChange = () => {
-    
     setState((prevState) => ({
       ...prevState,
       isGPSChecked: !prevState.isGPSChecked,
       locationValue: prevState.isGPSChecked ? null : prevState.locationValue,
     }));
-  
+
     if (!state.isGPSChecked) {
       getGeolocation();
     }
   };
-
- 
 
   const handleAvoidToll = () => {
     setTollCheck(!tollCheck);
@@ -46,14 +44,12 @@ const LocationLookup = ({ onTripResults }) => {
     return borderCheck;
   };
 
-
-
-
   const [selectedValue, setSelectedValue] = useState(null);
 
   const handleSelectChange = (selected) => {
     setSelectedValue(selected);
   };
+
   const [state, setState] = useState({
     isGPSChecked: false,
     locationValue: null,
@@ -62,8 +58,6 @@ const LocationLookup = ({ onTripResults }) => {
     suggestions2: [],
     tripResults: null,
     selectedRoutingMethod: null,
-    
-   
   });
 
   useEffect(() => {
@@ -85,8 +79,7 @@ const LocationLookup = ({ onTripResults }) => {
           const { latitude, longitude } = position.coords;
           setState((prevState) => ({
             ...prevState,
-            locationValue: `${latitude}:${longitude}`,
-           
+            locationValue: `${latitude}${longitude}`,
           }));
         },
         (error) => {
@@ -149,7 +142,6 @@ const LocationLookup = ({ onTripResults }) => {
       ...prevState,
       locationValue: selectedValue,
       suggestions: [selectedValue],
-     
     }));
   };
 
@@ -160,26 +152,61 @@ const LocationLookup = ({ onTripResults }) => {
       suggestions2: [selectedValue2],
     }));
   };
-  
   const [tripResults, setTripResults] = useState(null);
-  const mapContainerRef = React.createRef();
 
   const testRunTrip = () => {
+    setTripResults(null); // Reset tripResults to null
+    setButtonClicked(true);
+    setLoading(true); // Set loading state to true before making API call
+    closePopper();
+   // Simulating loading time with setTimeout
+  
+
     const { locationValue, loc2Value, isGPSChecked } = state;
 
+    let latitude = "";
+    let longitude = "";
+
+    if (isGPSChecked && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude: lat, longitude: lon } = position.coords;
+          latitude = lat;
+          longitude = lon;
+          fetchTrip(latitude, longitude, locationValue, loc2Value);
+        },
+        (error) => {
+          console.error("Error getting geolocation:", error);
+          fetchTrip(latitude, longitude, locationValue, loc2Value);
+        }
+      );
+    } else {
+      fetchTrip(latitude, longitude, locationValue, loc2Value);
+    }
+  };
+
+  const fetchTrip = (latitude, longitude, locationValue, loc2Value) => {
     const trip = {
       TripLegs: [
         {
-          LocationText: locationValue || null,
+          Address: "",
+          City: "",
+          State: "",
+          PostalCode: "",
+          Latitude: state.isGPSChecked ? latitude : "", // Use latitude if GPS is checked
+          Longitude: state.isGPSChecked ? longitude : "", // Use longitude if GPS is checked
+          LocationText: state.isGPSChecked ? null : locationValue, // Use locationValue if GPS is not checked
         },
         {
           LocationText: loc2Value || null,
         },
       ],
       UnitMPG: 6,
-      RoutingMethod: selectedValue ? selectedValue.label : 'Practical',
-      BorderOpen: isBorderChecked() ? true : false,
-      AvoidTollRoads: isTollChecked() ? true : false,
+      RoutingMethod: state.selectedRoutingMethod
+        ? state.selectedRoutingMethod.label
+        : "Practical",
+      BorderOpen: isBorderChecked(),
+      AvoidTollRoads: isTollChecked(),
       VehicleType: 7,
       AllowRelaxRestrictions: false,
       GetDrivingDirections: true,
@@ -200,28 +227,21 @@ const LocationLookup = ({ onTripResults }) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        setState((prevState) => ({ ...prevState, tripResults: data }));
+        setTripResults(data); // Update tripResults with new data
         onTripResults(data);
-        
-              
       })
       .catch((error) => {
         console.error("Error:", error);
+      })
+      .finally(() => {
+        setLoading(false); // Set loading state to false after API call resolves
       });
   };
 
-  const {
-    
-    locationValue,
-    loc2Value,
-    suggestions,
-    suggestions2,
-    
-  } = state;
+  const { locationValue, loc2Value, suggestions, suggestions2 } = state;
 
   return (
     <>
-      
       <div style={{ background: "#3c3c3c" }}>
         <div className="flex justify-center">
           <img className="h-20 pt-3 m-2" src={tmLogo} alt="" />
@@ -239,7 +259,9 @@ const LocationLookup = ({ onTripResults }) => {
                   onChange={handleGPSboxChange}
                   id="c1"
                 >
-                  <Checkbox.Root className="CheckboxRoot" id="c1">
+                  <Checkbox.Root className="CheckboxRoot" id="c1"
+                  
+                  >
                     <Checkbox.Indicator className="CheckboxIndicator">
                       <CheckIcon />
                     </Checkbox.Indicator>
@@ -248,14 +270,13 @@ const LocationLookup = ({ onTripResults }) => {
                 <label className="Label whitespace-nowrap " htmlFor="c1">
                   Start at my GPS Location
                 </label>
-              
-                <MyLocationIcon className="text-white ml-auto"/>
+
+                <MyLocationIcon className="text-white ml-auto" />
               </div>
             </form>
           </div>
         </label>
 
-        {/* Rest of your component code */}
         <div className="flex">
           <input
             className="searchBox text-black px-1 my-2 w-60 mx-auto "
@@ -265,6 +286,7 @@ const LocationLookup = ({ onTripResults }) => {
             placeholder="Search for Location"
           />
         </div>
+        <div style={{ maxHeight: "250px", overflowY: "scroll" , scrollbarWidth: "none", msOverflowStyle: "none"}}>
         {suggestions.length > 3 && (
           <ul className="mx-auto text-3 text-white p-2 w-60 font-bold bg-red-500">
             {suggestions.map((suggestion, index) => (
@@ -284,6 +306,8 @@ const LocationLookup = ({ onTripResults }) => {
             placeholder="Search for Location"
           />
         </label>
+        </div>
+        <div style={{ maxHeight: "250px", overflowY: "scroll", scrollbarWidth: "none", msOverflowStyle: "none"}}>
         {suggestions2.length > 3 && (
           <ul className="mx-auto w-60 text-3 text-white p-2 font-bold bg-red-500">
             {suggestions2.map((suggestion2, index) => (
@@ -293,36 +317,48 @@ const LocationLookup = ({ onTripResults }) => {
             ))}
           </ul>
         )}
-        <MySelect
-          onSelectChange={handleSelectChange}
-        />
+        </div>
+        <MySelect onSelectChange={handleSelectChange} />
 
         <label className="flex justify-center">
-          <div style={{ background: "#f44336" }} className="w-60 rounded-sm m-1 p-1">
-          <form>
-      <div>
-        <Checkbox.Root checked={!tollCheck} onChange={handleAvoidToll} id="c2">
-          <Checkbox.Root className="CheckboxRoot" id="c1">
-            <Checkbox.Indicator className="CheckboxIndicator">
-              <CheckIcon />
-            </Checkbox.Indicator>
-          </Checkbox.Root>
-        </Checkbox.Root>
-        <label className="Label" htmlFor="c2">
-          Avoid Toll
-        </label>
-      </div>
-      {/* You can use the isCheckboxChecked function as needed */}
-      
-    </form>
+          <div
+            style={{ background: "#f44336" }}
+            className="w-60 rounded-sm m-1 p-1"
+          >
+            <form>
+              <div>
+                <Checkbox.Root
+                  checked={!tollCheck}
+                  onChange={handleAvoidToll}
+                  id="c2"
+                >
+                  <Checkbox.Root className="CheckboxRoot" id="c1">
+                    <Checkbox.Indicator className="CheckboxIndicator">
+                      <CheckIcon />
+                    </Checkbox.Indicator>
+                  </Checkbox.Root>
+                </Checkbox.Root>
+                <label className="Label" htmlFor="c2">
+                  Avoid Toll
+                </label>
+              </div>
+              {/* You can use the isCheckboxChecked function as needed */}
+            </form>
           </div>
         </label>
 
         <label className="flex justify-center">
-          <div style={{ background: "#f44336" }} className="w-60 rounded-sm m-1 p-1">
+          <div
+            style={{ background: "#f44336" }}
+            className="w-60 rounded-sm m-1 p-1"
+          >
             <form>
               <div>
-                <Checkbox.Root checked={!borderCheck} onChange={() => handleCheckborderChange("borderCheck")} id="c3">
+                <Checkbox.Root
+                  checked={!borderCheck}
+                  onChange={() => handleCheckborderChange("borderCheck")}
+                  id="c3"
+                >
                   <Checkbox.Root className="CheckboxRoot" id="c3">
                     <Checkbox.Indicator className="CheckboxIndicator">
                       <CheckIcon />
@@ -337,10 +373,33 @@ const LocationLookup = ({ onTripResults }) => {
           </div>
           <br />
         </label>
-              
+
         <div>
           <Button onClick={testRunTrip}>Run Trip</Button>
-          {/* {tripResults? tripResults: null} */}
+         
+          {buttonClicked && !tripResults ? (
+            <p
+              style={{
+                margin: "0.5rem 1rem",
+                background: "#000",
+                color: "white",
+              }}
+            >
+              Loading...
+            </p>
+          ) : tripResults && tripResults.TripDistance ? (
+            <>
+              <p
+                style={{
+                  margin: "0.5rem 1rem",
+                  background: "#000",
+                  color: "white",
+                }}
+              >
+                Trip Distance: {tripResults.TripDistance}
+              </p>
+            </>
+          ) : null}
         </div>
       </div>
     </>
@@ -349,7 +408,7 @@ const LocationLookup = ({ onTripResults }) => {
 
 LocationLookup.propTypes = {
   onTripResults: PropTypes.func.isRequired,
-  
+  closePopper: PropTypes.func.isRequired, 
 };
 
 export default LocationLookup;

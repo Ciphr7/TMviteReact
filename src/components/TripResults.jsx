@@ -5,7 +5,7 @@ const TripResults = ({ tripResults }) => {
 
   return (
     <>
-    <div style={{ maxHeight: "400px", overflowY: "scroll" }}>
+    <div style={{ maxHeight: "400px", overflowY: "scroll", scrollbarWidth: "none", msOverflowStyle: "none"}}>
       <div className="flex justify-center">
         <img className="h-20 pt-3 m-2" src={tmLogo} alt="" />
       </div>

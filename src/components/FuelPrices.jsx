@@ -1,38 +1,66 @@
 import React, { useState, useEffect } from 'react';
-import {
-  CircularProgress,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-} from '@mui/material';
 
-import MyToken from './Token';
-import { Token } from '@mui/icons-material';
-
-const CorsExample = () => {
+const FuelPrices = () => {
   const [loading, setLoading] = useState(true);
   const [responseData, setResponseData] = useState([]);
   const [formattedResponseData, setFormattedResponseData] = useState([]);
-  const headers = [
-    { text: 'State', value: 'state' },
-    { text: 'Average', value: 'average' },
-    { text: 'IFTA Rate', value: 'refIFTA' },
-    { text: 'Price Date', value: 'formattedDate' },
-  ];
+  const [authorizationToken, setAuthorizationToken] = useState('');
+  const [lastDataFetchTimestamp, setLastDataFetchTimestamp] = useState(0);
 
   useEffect(() => {
-    fetchData();
+    const token = localStorage.getItem('authorizationToken');
+    const tokenTimestamp = localStorage.getItem('tokenTimestamp');
+    const data = localStorage.getItem('responseData');
+    const formattedData = localStorage.getItem('formattedResponseData');
+
+    if (token && tokenTimestamp) {
+      setAuthorizationToken(token);
+      if (data && formattedData) {
+        const currentTime = Date.now();
+        const oneDay = 24 * 60 * 60 * 1000;
+        if (currentTime - parseInt(tokenTimestamp) < oneDay) {
+          setResponseData(JSON.parse(data));
+          setFormattedResponseData(JSON.parse(formattedData));
+          setLoading(false);
+          return;
+        }
+      }
+    }
+
+    fetchTokenAndData();
+    const tokenInterval = setInterval(fetchTokenAndData, 3600000);
+    return () => clearInterval(tokenInterval);
   }, []);
 
-  const fetchData = () => {
-    const apiUrl = '/api/Averages/StateAverages'; // Use the proxy path
+  const handleFetchData = () => {
+    setLoading(true);
+    fetchTokenAndData();
+  };
 
+  const fetchTokenAndData = async () => {
+    try {
+      console.log("Fetching token...");
+      const tokenResponse = await fetchToken();
+      if (tokenResponse.ok) {
+        console.log("Token fetched successfully");
+        const tokenData = await tokenResponse.json();
+        const token = tokenData.access_token;
+        setAuthorizationToken(token);
+        localStorage.setItem('authorizationToken', token);
+        localStorage.setItem('tokenTimestamp', Date.now());
+        fetchData();
+      } else {
+        throw new Error("Failed to fetch token");
+      }
+    } catch (error) {
+      console.error("Error fetching token:", error);
+      setLoading(false);
+    }
+  };
+
+  const fetchData = async () => {
+    const apiUrl = 'https://axis.promiles.com/v1/Averages/StateAverages';
     const username = 'truckmiles';
-    const authorizationToken = ""; // Replace with your actual authorization token
 
     const requestOptions = {
       method: 'POST',
@@ -54,9 +82,12 @@ const CorsExample = () => {
       }),
     };
 
-    fetch(apiUrl, requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
+    try {
+      console.log("Fetching data from API...");
+      const response = await fetch(apiUrl, requestOptions);
+      if (response.ok) {
+        console.log("Data fetched successfully");
+        const data = await response.json();
         setResponseData(data.map((item) => ({
           state: item.state,
           average: item.average,
@@ -67,72 +98,87 @@ const CorsExample = () => {
           ...item,
           formattedDate: formatDate(new Date(item.priceDate)),
         })));
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      })
-      .finally(() => {
-        setLoading(false);
+        setLastDataFetchTimestamp(Date.now());
+
+        // Store data in localStorage
+        localStorage.setItem('responseData', JSON.stringify(data));
+        localStorage.setItem('formattedResponseData', JSON.stringify(data.map(item => ({
+          ...item,
+          formattedDate: formatDate(new Date(item.priceDate)),
+        }))));
+      } else {
+        throw new Error("Failed to fetch data");
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchToken = async () => {
+    const apiUrl = 'https://axis.promiles.com/v1/Token';
+
+    try {
+      console.log("Fetching token from API...");
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          grant_type: 'password',
+          username: 'truckmiles',
+          password: '#Qp7D4jqCAW2Um2t',
+        }),
       });
+      return response;
+    } catch (error) {
+      console.error("Error fetching token:", error);
+      throw error;
+    }
   };
 
   const calculatePriceDates = () => {
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-
-    const formatDate = date => {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}${month}${day}`;
-    };
-
-    return [formatDate(today), formatDate(yesterday)];
+    // Implement calculatePriceDates function logic here
   };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    const yyyy = date.getFullYear();
-    return `${mm}/${dd}/${yyyy}`;
+  const formatDate = (date) => {
+    const options = { month: '2-digit', day: '2-digit' };
+    return new Date(date).toLocaleDateString(undefined, options);
   };
 
   return (
-    <>
     <div style={{ maxHeight: "400px", overflowY: "scroll" }}>
+      <button onClick={handleFetchData} disabled={loading}>
+        {loading ? 'Fetching...' : 'Force Fetch Data'}
+      </button>
       {loading ? (
-        <CircularProgress />
+        <p>Loading...</p>
       ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                {headers.map((header) => (
-                  <TableCell key={header.value}>{header.text}</TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {formattedResponseData.map((row, index) => (
-                <TableRow key={index}>
-                  {headers.map((header) => (
-                    <TableCell key={header.value}>{row[header.value]}</TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <table>
+          <thead style={{ position: "sticky", top: 0, zIndex: 1, background: "#f44336" }}>
+            <tr>
+              <th className='px-2'>State</th>
+              <th className='px-2'>Average</th>
+              <th className='px-2'>Price Date</th>
+              <th className='px-2'>Ref IFTA</th>
+            </tr>
+          </thead>
+          <tbody>
+            {formattedResponseData.map((item, index) => (
+              <tr key={index}>
+                <td>{item.state}</td>
+                <td>{item.average}</td>
+                <td>{formatDate(new Date(item.priceDate))}</td>
+                <td>{item.refIFTA}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
-    <div>
-      <Token />
-      <MyToken />
-    </div>
-    </>
   );
 };
 
-export default CorsExample;
+export default FuelPrices;

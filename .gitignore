@@ -9,6 +9,7 @@ lerna-debug.log*
 src/components/tmAPIKey.js
 src/components/googleApiKey.js
 src/components/Token.jsx
+src/components/FuelPrices.jsx
 node_modules
 dist
 dist-ssr

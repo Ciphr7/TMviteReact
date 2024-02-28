@@ -54,14 +54,26 @@ const GoogleMapComponent = ({ tripResults }) => {
     const startMarker = new window.google.maps.Marker({
       position: { lat: oLat, lng: oLon },
       map: mapRef.current,
-      label: tripResults.OriginLabel // Labeling it as 'S' for start
+      label:{
+        text: tripResults.OriginLabel, // Text content of the label
+        color: 'red', // Text color
+        fontWeight: 'bold', // Text weight
+        strokeColor: 'white', // Stroke color
+        strokeWeight: 2 // Stroke weight
+      }
     });
     startMarkerRef.current = startMarker;
   
     const endMarker = new window.google.maps.Marker({
       position: { lat: dLat, lng: dLon },
       map: mapRef.current,
-      label: tripResults.DestinationLabel// Labeling it as 'E' for end
+      label:{
+        text:tripResults.DestinationLabel,
+        color: 'red', // Text color
+        fontWeight: 'bold', // Text weight
+        strokeColor: 'white', // Stroke color
+        strokeWeight: 2 // Stroke weight
+      } 
     });
     endMarkerRef.current = endMarker;
   
@@ -105,6 +117,9 @@ const GoogleMapComponent = ({ tripResults }) => {
           zoom={4}
           center={{ lat: 39.8282, lng: -98.5795 }}
           onLoad={onLoad}
+          options={{
+            gestureHandling: "greedy" // Enable zooming without holding control key
+          }}
         />
       </LoadScript>
     </div>

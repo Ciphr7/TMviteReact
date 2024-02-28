@@ -10,11 +10,11 @@ src/components/tmAPIKey.js
 src/components/googleApiKey.js
 src/components/Token.jsx
 src/components/FuelPrices.jsx
+src/components/FuelAverages.jsx
 node_modules
 dist
 dist-ssr
 *.local
-
 
 # Editor directories and files
 .vscode/*

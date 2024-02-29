@@ -3,18 +3,24 @@ import tmLogo from "../images/tmLogo.png";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { CheckIcon } from "@radix-ui/react-icons";
 import { lookUpKey, tmAPIKey } from "./tmAPIKey";
-
+import Button from "@mui/material/Button";
 import PropTypes from "prop-types";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 import "./LocationLookup.css";
 import MySelect from "./RouteOptions";
-import { Button } from "@mui/material";
 
-const LocationLookup = ({ onTripResults, closePopper }) => {
+
+const LocationLookup = ({ onTripResults, closePopper, updateButtonClicked }) => {
   const [buttonClicked, setButtonClicked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [tollCheck, setTollCheck] = useState(false);
   const [borderCheck, setBorderCheck] = useState(false);
+
+  const handleButtonClick = () => {
+    // Call the updateButtonClicked function with the new value
+    updateButtonClicked(true);
+    
+  };
 
   const handleGPSboxChange = () => {
     setState((prevState) => ({
@@ -156,7 +162,7 @@ const LocationLookup = ({ onTripResults, closePopper }) => {
 
   const testRunTrip = () => {
     setTripResults(null); // Reset tripResults to null
-    setButtonClicked(true);
+   
     setLoading(true); // Set loading state to true before making API call
     closePopper();
    // Simulating loading time with setTimeout
@@ -375,7 +381,7 @@ const LocationLookup = ({ onTripResults, closePopper }) => {
         </label>
 
         <div>
-          <Button onClick={testRunTrip}>Run Trip</Button>
+          <Button style={{ background: "#3c3c3c", padding: "2px 2px", margin: "1px 1%" }} onClick={ () => {testRunTrip(); handleButtonClick(); }}>Run Trip</Button>
          
           {buttonClicked && !tripResults ? (
             <p

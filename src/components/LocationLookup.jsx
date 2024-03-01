@@ -8,9 +8,39 @@ import PropTypes from "prop-types";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 import "./LocationLookup.css";
 import MySelect from "./RouteOptions";
+import Destination from "./Destination";
+import Origin from "./Origin";
 
+const LocationLookup = ({
+  onTripResults,
+  closePopper,
+  updateButtonClicked,
+}) => {
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedItem2, setSelectedItem2] = useState(null);
+  const [selectedDestination, setSelectedDestination] = useState(null);
+  
+  const [lat, setLat] = useState(null);
+  const [lon, setLon] = useState(null);
 
-const LocationLookup = ({ onTripResults, closePopper, updateButtonClicked }) => {
+  const handleSelectedItemChange = (newValue) => {
+    setSelectedItem(newValue);
+  };
+
+  const handleSelectedItemChange2 = (newValue) => {
+    setSelectedItem2(newValue);
+  };
+  const handleSelectDestination = (newValue) => {
+    setSelectedDestination(newValue);
+  };
+  const handleLatChange = (newLat) => {
+    setLat(newLat);
+  };
+
+  const handleLonChange = (newLon) => {
+    setLon(newLon);
+  };
+
   const [buttonClicked, setButtonClicked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [tollCheck, setTollCheck] = useState(false);
@@ -19,7 +49,6 @@ const LocationLookup = ({ onTripResults, closePopper, updateButtonClicked }) => 
   const handleButtonClick = () => {
     // Call the updateButtonClicked function with the new value
     updateButtonClicked(true);
-    
   };
 
   const handleGPSboxChange = () => {
@@ -66,107 +95,14 @@ const LocationLookup = ({ onTripResults, closePopper, updateButtonClicked }) => 
     selectedRoutingMethod: null,
   });
 
-  useEffect(() => {
-    if (state.locationValue && state.locationValue.length >= 3) {
-      fetchSuggestions();
-    }
-  }, [state.locationValue]);
-
-  useEffect(() => {
-    if (state.loc2Value && state.loc2Value.length >= 3) {
-      fetchSuggestions2();
-    }
-  }, [state.loc2Value]);
-
-  const getGeolocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setState((prevState) => ({
-            ...prevState,
-            locationValue: `${latitude}${longitude}`,
-          }));
-        },
-        (error) => {
-          console.error("Error getting geolocation:", error);
-          setState((prevState) => ({ ...prevState, locationValue: null }));
-        }
-      );
-    } else {
-      console.error("Geolocation is not supported in this browser.");
-      setState((prevState) => ({ ...prevState, locationValue: null }));
-    }
-  };
-
-  const fetchSuggestions = () => {
-    const { locationValue } = state;
-    fetch(
-      `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${locationValue}&apikey=${lookUpKey}`
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        const suggestions = data.map(
-          (item) => `${item.City}, ${item.State}, ${item.PostalCode}`
-        );
-        setState((prevState) => ({ ...prevState, suggestions }));
-      })
-      .catch((error) => {
-        console.error("Error fetching suggestions:", error);
-      });
-  };
-
-  const fetchSuggestions2 = () => {
-    const { loc2Value } = state;
-    fetch(
-      `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${loc2Value}&apikey=${lookUpKey}`
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        const suggestions2 = data.map(
-          (item) => `${item.City}, ${item.State}, ${item.PostalCode}`
-        );
-        setState((prevState) => ({ ...prevState, suggestions2 }));
-      })
-      .catch((error) => {
-        console.error("Error fetching suggestions2:", error);
-      });
-  };
-
-  const handleInputChange = (e) => {
-    const locationValue = e.target.value;
-    setState((prevState) => ({ ...prevState, locationValue }));
-  };
-
-  const handleInputChange2 = (e) => {
-    const loc2Value = e.target.value;
-    setState((prevState) => ({ ...prevState, loc2Value }));
-  };
-
-  const handleSelect = (selectedValue) => {
-    setState((prevState) => ({
-      ...prevState,
-      locationValue: selectedValue,
-      suggestions: [selectedValue],
-    }));
-  };
-
-  const handleSelect2 = (selectedValue2) => {
-    setState((prevState) => ({
-      ...prevState,
-      loc2Value: selectedValue2,
-      suggestions2: [selectedValue2],
-    }));
-  };
   const [tripResults, setTripResults] = useState(null);
 
   const testRunTrip = () => {
     setTripResults(null); // Reset tripResults to null
-   
+
     setLoading(true); // Set loading state to true before making API call
-    closePopper();
-   // Simulating loading time with setTimeout
-  
+   // closePopper();
+    // Simulating loading time with setTimeout
 
     const { locationValue, loc2Value, isGPSChecked } = state;
 
@@ -201,10 +137,10 @@ const LocationLookup = ({ onTripResults, closePopper, updateButtonClicked }) => 
           PostalCode: "",
           Latitude: state.isGPSChecked ? latitude : "", // Use latitude if GPS is checked
           Longitude: state.isGPSChecked ? longitude : "", // Use longitude if GPS is checked
-          LocationText: state.isGPSChecked ? null : locationValue, // Use locationValue if GPS is not checked
+          LocationText: state.isGPSChecked ? null : selectedItem.text, // Use locationValue if GPS is not checked
         },
         {
-          LocationText: loc2Value || null,
+          LocationText: selectedItem2.text|| null,
         },
       ],
       UnitMPG: 6,
@@ -249,81 +185,28 @@ const LocationLookup = ({ onTripResults, closePopper, updateButtonClicked }) => 
   return (
     <>
       <div style={{ background: "#3c3c3c" }}>
-        <div className="flex justify-center">
-          <img className="h-20 pt-3 m-2" src={tmLogo} alt="" />
-        </div>
-        <label className="flex justify-center">
-          <div
-            style={{ background: "#f44336", padding: "5px" }}
-            className="w-60 rounded-sm m-1 p-1"
-          >
-            <form>
-              <div className="flex items-center ">
-                <Checkbox.Root
-                  className="CheckboxRoot"
-                  checked={!state.isGPSChecked}
-                  onChange={handleGPSboxChange}
-                  id="c1"
-                >
-                  <Checkbox.Root className="CheckboxRoot" id="c1"
-                  
-                  >
-                    <Checkbox.Indicator className="CheckboxIndicator">
-                      <CheckIcon />
-                    </Checkbox.Indicator>
-                  </Checkbox.Root>
-                </Checkbox.Root>
-                <label className="Label whitespace-nowrap " htmlFor="c1">
-                  Start at my GPS Location
-                </label>
+        <Origin
+          selectedItem={selectedItem}
+          updateSelectedItem={handleSelectedItemChange}
+          lat={lat}
+          lon={lon}
+          handleLatChange={handleLatChange}
+          handleLonChange={handleLonChange}
+          noDataText="No data found"
+          minLength={3}
+          itemText="name"
+          label="Select an item"
+        />
+        <Destination
+           selectedItem2={selectedItem2}
+           label="Destination"
+           minLength={3}
+          
+           noDataText="No matching destinations found"
+           itemText2="text"
+           updateSelectedItem={handleSelectedItemChange2}
+        />
 
-                <MyLocationIcon className="text-white ml-auto" />
-              </div>
-            </form>
-          </div>
-        </label>
-
-        <div className="flex">
-          <input
-            className="searchBox text-black px-1 my-2 w-60 mx-auto "
-            type="text"
-            value={locationValue === null ? "" : locationValue}
-            onChange={handleInputChange}
-            placeholder="Search for Location"
-          />
-        </div>
-        <div style={{ maxHeight: "250px", overflowY: "scroll" , scrollbarWidth: "none", msOverflowStyle: "none"}}>
-        {suggestions.length > 3 && (
-          <ul className="mx-auto text-3 text-white p-2 w-60 font-bold bg-red-500">
-            {suggestions.map((suggestion, index) => (
-              <li key={index} onClick={() => handleSelect(suggestion)}>
-                {suggestion}
-              </li>
-            ))}
-          </ul>
-        )}
-
-        <label className="text-center flex">
-          <input
-            className="mx-auto text-black searchBox px-1 w-60 my-2"
-            type="text"
-            value={loc2Value === null ? "" : loc2Value}
-            onChange={handleInputChange2}
-            placeholder="Search for Location"
-          />
-        </label>
-        </div>
-        <div style={{ maxHeight: "250px", overflowY: "scroll", scrollbarWidth: "none", msOverflowStyle: "none"}}>
-        {suggestions2.length > 3 && (
-          <ul className="mx-auto w-60 text-3 text-white p-2 font-bold bg-red-500">
-            {suggestions2.map((suggestion2, index) => (
-              <li key={index} onClick={() => handleSelect2(suggestion2)}>
-                {suggestion2}
-              </li>
-            ))}
-          </ul>
-        )}
-        </div>
         <MySelect onSelectChange={handleSelectChange} />
 
         <label className="flex justify-center">
@@ -381,8 +264,20 @@ const LocationLookup = ({ onTripResults, closePopper, updateButtonClicked }) => 
         </label>
 
         <div>
-          <Button style={{ background: "#3c3c3c", padding: "2px 2px", margin: "1px 1%" }} onClick={ () => {testRunTrip(); handleButtonClick(); }}>Run Trip</Button>
-         
+          <Button
+            style={{
+              background: "#3c3c3c",
+              padding: "2px 2px",
+              margin: "1px 1%",
+            }}
+            onClick={() => {
+              testRunTrip();
+              handleButtonClick();
+            }}
+          >
+            Run Trip
+          </Button>
+
           {buttonClicked && !tripResults ? (
             <p
               style={{
@@ -414,7 +309,7 @@ const LocationLookup = ({ onTripResults, closePopper, updateButtonClicked }) => 
 
 LocationLookup.propTypes = {
   onTripResults: PropTypes.func.isRequired,
-  closePopper: PropTypes.func.isRequired, 
+  closePopper: PropTypes.func.isRequired,
 };
 
 export default LocationLookup;

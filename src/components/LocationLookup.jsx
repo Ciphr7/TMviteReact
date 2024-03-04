@@ -1,79 +1,79 @@
 import React, { useState, useEffect } from "react";
+import tmLogo from "../images/tmLogo.png";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { CheckIcon } from "@radix-ui/react-icons";
+import { lookUpKey, tmAPIKey } from "./tmAPIKey";
 import Button from "@mui/material/Button";
 import PropTypes from "prop-types";
+import MyLocationIcon from "@mui/icons-material/MyLocation";
 import "./LocationLookup.css";
 import MySelect from "./RouteOptions";
-import Destination from "./Destination";
-import Origin from "./Origin";
-import { tmAPIKey } from "./tmAPIKey";
+import Autocomplete from "@mui/material/Autocomplete";
+import {
+  Container,
+  Switch,
+  FormControlLabel,
+  Grid,
+  CircularProgress,
+  TextField,
+} from "@mui/material";
 
-const LocationLookup = ({ onTripResults, updateButtonClicked }) => {
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [selectedItem2, setSelectedItem2] = useState(null);
-  const [lat, setLat] = useState(null);
-  const [lon, setLon] = useState(null);
+const LocationLookup = ({
+  onTripResults,
+  closePopper,
+  updateButtonClicked,
+}) => {
   const [buttonClicked, setButtonClicked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [tollCheck, setTollCheck] = useState(false);
   const [borderCheck, setBorderCheck] = useState(false);
-  const [gpsCheck, setGpsCheck] = useState(false);
+  const [state, setState] = useState({
+    isGPSChecked: false,
+    locationValue: null,
+    loc2Value: null,
+    suggestions: [],
+    suggestions2: [],
+    tripResults: null,
+    selectedRoutingMethod: null,
+  });
 
-  // Initialize TripLegs state
-  const [tripLegs, setTripLegs] = useState([
-    { Address: "", City: "", State: "", PostalCode: "", Latitude: null, Longitude: null, LocationText: null },
-    { LocationText: null }
-  ]);
-
-  const [tripResults, setTripResults] = useState(null);
-
-  const handleSelectedItemChange = (newValue) => {
-    setSelectedItem(newValue);
-  };
-
-  const handleSelectedItemChange2 = (newValue) => {
-    setSelectedItem2(newValue);
-  };
-
-  const handleLatChange = (newLat) => {
-    setLat(newLat);
-  };
-
-  const handleLonChange = (newLon) => {
-    setLon(newLon);
+  const getGeolocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setState((prevState) => ({
+            ...prevState,
+            locationValue: `${latitude}${longitude}`,
+          }));
+        },
+        (error) => {
+          console.error("Error getting geolocation:", error);
+          setState((prevState) => ({ ...prevState, locationValue: null }));
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported in this browser.");
+      setState((prevState) => ({ ...prevState, locationValue: null }));
+    }
   };
 
   const handleButtonClick = () => {
+    // Call the updateButtonClicked function with the new value
     updateButtonClicked(true);
   };
 
   const handleGPSboxChange = () => {
-    setGpsCheck(!gpsCheck);
-  };
+    setState((prevState) => ({
+      ...prevState,
+      isGPSChecked: !prevState.isGPSChecked,
+      locationValue: prevState.isGPSChecked ? null : prevState.locationValue,
+    }));
 
-  const handleSelectChange = (selected) => {
-    // Define the logic for handling select change here
-  };
-
-  useEffect(() => {
-    if (!gpsCheck) {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            setLat(latitude);
-            setLon(longitude);
-          },
-          (error) => {
-            console.error("Error getting geolocation:", error);
-          }
-        );
-      } else {
-        console.error("Geolocation is not supported");
-      }
+    if (!state.isGPSChecked) {
+      getGeolocation();
     }
-  }, [gpsCheck]);
+  };
 
   const handleAvoidToll = () => {
     setTollCheck(!tollCheck);
@@ -91,7 +91,115 @@ const LocationLookup = ({ onTripResults, updateButtonClicked }) => {
     return borderCheck;
   };
 
-  const fetchTrip = (latitude, longitude) => {
+  const [selectedValue, setSelectedValue] = useState(null);
+
+ 
+  useEffect(() => {
+    if (state.locationValue && state.locationValue.length >= 3) {
+      setLoading(true); // Set loading state to true before making API call
+      fetchSuggestions(state.locationValue).then((suggestions) => {
+        setState((prevState) => ({ ...prevState, suggestions }));
+        setLoading(false); // Set loading state back to false after API call
+      });
+    }
+  }, [state.locationValue]);
+
+  
+
+  useEffect(() => {
+    if (state.loc2Value && state.loc2Value.length >= 3) {
+      setLoading(true); // Set loading state to true before making API call
+      fetchSuggestions(state.loc2Value).then((suggestions2) => {
+        setState((prevState) => ({ ...prevState, suggestions2 }));
+        setLoading(false); // Set loading state back to false after API call
+      });
+    }
+  }, [state.loc2Value]);
+
+
+  const fetchSuggestions = (query) => {
+    return new Promise((resolve, reject) => {
+      fetch(
+        `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${query}&apikey=${lookUpKey}`
+      )
+        .then((response) => response.json())
+        .then((data) =>
+          data.map(
+            (item) => `${item.City}, ${item.State}, ${item.PostalCode}`
+          )
+        )
+        .then(resolve)
+        .catch(reject);
+    });
+  };
+
+
+  const fetchSuggestions2 = () => {
+    const { loc2Value } = state;
+    fetch(
+      `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${loc2Value}&apikey=${lookUpKey}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        const suggestions2 = data.map(
+          (item) => `${item.City}, ${item.State}, ${item.PostalCode}`
+        );
+        setState((prevState) => ({ ...prevState, suggestions2 }));
+      })
+      .catch((error) => {
+        console.error("Error fetching suggestions2:", error);
+      });
+  };
+
+  const handleSelectChange = (selected) => {
+    setState((prevState) => ({ ...prevState, selectedRoutingMethod: selected }));
+  };
+
+  const handleInputChange2 = (event, newValue) => {
+    setState((prevState) => ({ ...prevState, loc2Value: newValue }));
+  };
+
+  
+  const handleSelect2 = (selectedValue2) => {
+    setState((prevState) => ({
+      ...prevState,
+      loc2Value: selectedValue2,
+      suggestions2: [selectedValue2],
+    }));
+  };
+  const [tripResults, setTripResults] = useState(null);
+
+  const testRunTrip = () => {
+    setTripResults(null); // Reset tripResults to null
+
+    setLoading(true); // Set loading state to true before making API call
+    closePopper();
+    // Simulating loading time with setTimeout
+
+    const { locationValue, loc2Value, isGPSChecked } = state;
+
+    let latitude = "";
+    let longitude = "";
+
+    if (isGPSChecked && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude: lat, longitude: lon } = position.coords;
+          latitude = lat;
+          longitude = lon;
+          fetchTrip(latitude, longitude, locationValue, loc2Value);
+        },
+        (error) => {
+          console.error("Error getting geolocation:", error);
+          fetchTrip(latitude, longitude, locationValue, loc2Value);
+        }
+      );
+    } else {
+      fetchTrip(latitude, longitude, locationValue, loc2Value);
+    }
+  };
+
+  const fetchTrip = (latitude, longitude, locationValue, loc2Value) => {
     const trip = {
       TripLegs: [
         {
@@ -99,14 +207,18 @@ const LocationLookup = ({ onTripResults, updateButtonClicked }) => {
           City: "",
           State: "",
           PostalCode: "",
-          Latitude: gpsCheck ? latitude : "", // Use latitude if GPS is checked
-          Longitude: gpsCheck ? longitude : "", // Use longitude if GPS is checked
-          LocationText: gpsCheck ? null : (selectedItem?.text || null), // Set to null if GPS is true, otherwise use selectedItem.text
+          Latitude: state.isGPSChecked ? latitude : "", // Use latitude if GPS is checked
+          Longitude: state.isGPSChecked ? longitude : "", // Use longitude if GPS is checked
+          LocationText: state.isGPSChecked ? null : locationValue, // Use locationValue if GPS is not checked
         },
-        { LocationText: selectedItem2?.text || null },
+        {
+          LocationText: loc2Value || null,
+        },
       ],
       UnitMPG: 6,
-      RoutingMethod: "Practical",
+      RoutingMethod: state.selectedRoutingMethod
+        ? state.selectedRoutingMethod.label
+        : "Practical",
       BorderOpen: isBorderChecked(),
       AvoidTollRoads: isTollChecked(),
       VehicleType: 7,
@@ -119,7 +231,7 @@ const LocationLookup = ({ onTripResults, updateButtonClicked }) => {
       GetFuelOptimization: false,
       apikey: tmAPIKey,
     };
-  
+
     fetch("https://prime.promiles.com/WebAPI/api/RunTrip", {
       method: "POST",
       headers: {
@@ -129,67 +241,106 @@ const LocationLookup = ({ onTripResults, updateButtonClicked }) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        setTripResults(data);
+        setTripResults(data); // Update tripResults with new data
         onTripResults(data);
       })
       .catch((error) => {
         console.error("Error:", error);
       })
       .finally(() => {
-        setLoading(false);
+        setLoading(false); // Set loading state to false after API call resolves
       });
   };
-  
-  const testRunTrip = () => {
-    setTripResults(null);
-    setLoading(true);
-    console.log("gpsCheck:", gpsCheck);
-    if (gpsCheck && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setLat(latitude);
-          setLon(longitude);
-          fetchTrip(latitude, longitude);
-        },
-        (error) => {
-          console.error("Error getting geolocation:", error);
-          setLoading(false);
-        }
-      );
-    } else {
-      fetchTrip(lat, lon);
-    }
-  };
+
+  const { locationValue, loc2Value, suggestions, suggestions2 } = state;
 
   return (
     <>
       <div style={{ background: "#3c3c3c" }}>
-        <Origin
-          className="mx-auto w-60 p-2"
-          selectedItem={selectedItem}
-          updateSelectedItem={handleSelectedItemChange}
-          lat={lat}
-          lon={lon}
-          handleLatChange={handleLatChange}
-          handleLonChange={handleLonChange}
-          handleGPSboxChange={handleGPSboxChange}
-          noDataText="No data found"
-          minLength={3}
-          itemText="name"
-          label="i.e 19145"
-          isGPSChecked={gpsCheck}
-        />
-        <br />
-        <Destination
-          selectedItem2={selectedItem2}
-          label="i.e Houston, tx"
-          minLength={3}
-          noDataText="No matching destinations found"
-          itemText2="text"
-          updateSelectedItem={handleSelectedItemChange2}
-        />
+        <label className="flex justify-center">
+          <div
+            style={{ background: "#f44336", padding: "5px" }}
+            className="w-60 rounded-sm m-1 p-1"
+          >
+            <form>
+              <div className="flex items-center ">
+                <Checkbox.Root
+                  className="CheckboxRoot"
+                  checked={!state.isGPSChecked}
+                  onChange={handleGPSboxChange}
+                  id="c1"
+                >
+                  <Checkbox.Root className="CheckboxRoot" id="c1">
+                    <Checkbox.Indicator className="CheckboxIndicator">
+                      <CheckIcon />
+                    </Checkbox.Indicator>
+                  </Checkbox.Root>
+                </Checkbox.Root>
+                <label className="Label whitespace-nowrap " htmlFor="c1">
+                  Start at my GPS Location
+                </label>
 
+                <MyLocationIcon className="text-white ml-auto" />
+              </div>
+            </form>
+          </div>
+        </label>
+
+        <div >
+     
+        <Autocomplete
+          className="searchBox text-black px-1 my-2 w-60 mx-auto"
+          options={suggestions}
+          loading={loading}
+          style={{ backgroundColor: "white", maxWidth: "300px", margin: "0 auto" }}
+          value={locationValue}
+          onChange={(event, newValue) => setState((prevState) => ({ ...prevState, locationValue: newValue }))}
+          onInputChange={(event, newInputValue) => setState((prevState) => ({ ...prevState, locationValue: newInputValue }))}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              placeholder="Search for Location"
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: (
+                  <>
+                    {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                    {params.InputProps.endAdornment}
+                  </>
+                ),
+              }}
+            />
+          )}
+        />
+        
+        <Autocomplete
+          className="searchBox text-black px-1 my-2 w-60 mx-auto"
+          options={suggestions2}
+          loading={loading}
+          style={{ backgroundColor: "white", maxWidth: "300px", margin: "0 auto" }}
+          value={loc2Value}
+          onChange={(event, newValue) => setState((prevState) => ({ ...prevState, loc2Value: newValue }))}
+          onInputChange={(event, newInputValue) => setState((prevState) => ({ ...prevState, loc2Value: newInputValue }))}
+       
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              placeholder="Search for Location"
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: (
+                  <>
+                    {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                    {params.InputProps.endAdornment}
+                  </>
+                ),
+              }}
+            />
+          )}
+        />
+         
+    </div>
+ 
         <MySelect onSelectChange={handleSelectChange} />
 
         <label className="flex justify-center">
@@ -214,6 +365,7 @@ const LocationLookup = ({ onTripResults, updateButtonClicked }) => {
                   Avoid Toll
                 </label>
               </div>
+              {/* You can use the isCheckboxChecked function as needed */}
             </form>
           </div>
         </label>
@@ -227,7 +379,7 @@ const LocationLookup = ({ onTripResults, updateButtonClicked }) => {
               <div>
                 <Checkbox.Root
                   checked={!borderCheck}
-                  onChange={handleCheckborderChange}
+                  onChange={() => handleCheckborderChange("borderCheck")}
                   id="c3"
                 >
                   <Checkbox.Root className="CheckboxRoot" id="c3">
@@ -291,7 +443,7 @@ const LocationLookup = ({ onTripResults, updateButtonClicked }) => {
 
 LocationLookup.propTypes = {
   onTripResults: PropTypes.func.isRequired,
-  updateButtonClicked: PropTypes.func.isRequired,
+  closePopper: PropTypes.func.isRequired,
 };
 
 export default LocationLookup;

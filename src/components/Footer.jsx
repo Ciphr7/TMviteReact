@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import Box from "@mui/material/Box";
+import {CircularProgress,} from "@mui/material";
 import GoogleMap from "./GoogleMap";
 import Popper from "@mui/material/Popper";
 import Button from "@mui/material/Button";
@@ -71,15 +72,7 @@ const Footer = () => {
       <GoogleMap tripResults={tripResults} />
       <div>
         {loading ? (
-          <p
-            style={{
-              margin: "0.5rem 1rem",
-              background: "#000",
-              color: "white",
-            }}
-          >
-            Loading...
-          </p>
+          <CircularProgress color="inherit" size={30} />
         ) : tripResults && tripResults.TripDistance ? (
           <p
             style={{

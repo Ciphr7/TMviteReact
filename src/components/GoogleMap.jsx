@@ -56,7 +56,7 @@ const GoogleMapComponent = ({ tripResults }) => {
       map: mapRef.current,
       label:{
         text: tripResults.OriginLabel, // Text content of the label
-        color: 'red', // Text color
+        color: 'black', // Text color
         fontWeight: 'bold', // Text weight
         strokeColor: 'white', // Stroke color
         strokeWeight: 2 // Stroke weight
@@ -69,9 +69,9 @@ const GoogleMapComponent = ({ tripResults }) => {
       map: mapRef.current,
       label:{
         text:tripResults.DestinationLabel,
-        color: 'red', // Text color
+        color: 'black', // Text color
         fontWeight: 'bold', // Text weight
-        strokeColor: 'white', // Stroke color
+        strokeColor: 'red', // Stroke color
         strokeWeight: 2 // Stroke weight
       } 
     });

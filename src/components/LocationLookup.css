@@ -12,7 +12,9 @@
 }
 
 
-
+.searchBoxWrapper {
+  margin-bottom: 20px;
+}
 /* reset */
 button {
   all: unset;

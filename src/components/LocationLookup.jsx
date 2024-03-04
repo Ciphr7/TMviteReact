@@ -355,7 +355,7 @@ const LocationLookup = ({
                   onChange={handleAvoidToll}
                   id="c2"
                 >
-                  <Checkbox.Root className="CheckboxRoot" id="c1">
+                  <Checkbox.Root className="CheckboxRoot" id="c2">
                     <Checkbox.Indicator className="CheckboxIndicator">
                       <CheckIcon />
                     </Checkbox.Indicator>

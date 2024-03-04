@@ -72,7 +72,7 @@ const Footer = () => {
       <GoogleMap tripResults={tripResults} />
       <div>
         {loading ? (
-          <CircularProgress color="inherit" size={30} />
+          <CircularProgress color="error" size={30} />
         ) : tripResults && tripResults.TripDistance ? (
           <p
             style={{

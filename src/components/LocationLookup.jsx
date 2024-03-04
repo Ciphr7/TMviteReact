@@ -1,27 +1,32 @@
 import React, { useState, useEffect } from "react";
-import tmLogo from "../images/tmLogo.png";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { CheckIcon } from "@radix-ui/react-icons";
-import { lookUpKey, tmAPIKey } from "./tmAPIKey";
 import Button from "@mui/material/Button";
 import PropTypes from "prop-types";
-import MyLocationIcon from "@mui/icons-material/MyLocation";
 import "./LocationLookup.css";
 import MySelect from "./RouteOptions";
 import Destination from "./Destination";
 import Origin from "./Origin";
+import { tmAPIKey } from "./tmAPIKey";
 
-const LocationLookup = ({
-  onTripResults,
-  closePopper,
-  updateButtonClicked,
-}) => {
+const LocationLookup = ({ onTripResults, updateButtonClicked }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedItem2, setSelectedItem2] = useState(null);
-  const [selectedDestination, setSelectedDestination] = useState(null);
-  
   const [lat, setLat] = useState(null);
   const [lon, setLon] = useState(null);
+  const [buttonClicked, setButtonClicked] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [tollCheck, setTollCheck] = useState(false);
+  const [borderCheck, setBorderCheck] = useState(false);
+  const [gpsCheck, setGpsCheck] = useState(false);
+
+  // Initialize TripLegs state
+  const [tripLegs, setTripLegs] = useState([
+    { Address: "", City: "", State: "", PostalCode: "", Latitude: null, Longitude: null, LocationText: null },
+    { LocationText: null }
+  ]);
+
+  const [tripResults, setTripResults] = useState(null);
 
   const handleSelectedItemChange = (newValue) => {
     setSelectedItem(newValue);
@@ -30,9 +35,7 @@ const LocationLookup = ({
   const handleSelectedItemChange2 = (newValue) => {
     setSelectedItem2(newValue);
   };
-  const handleSelectDestination = (newValue) => {
-    setSelectedDestination(newValue);
-  };
+
   const handleLatChange = (newLat) => {
     setLat(newLat);
   };
@@ -41,27 +44,36 @@ const LocationLookup = ({
     setLon(newLon);
   };
 
-  const [buttonClicked, setButtonClicked] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [tollCheck, setTollCheck] = useState(false);
-  const [borderCheck, setBorderCheck] = useState(false);
-
   const handleButtonClick = () => {
-    // Call the updateButtonClicked function with the new value
     updateButtonClicked(true);
   };
 
   const handleGPSboxChange = () => {
-    setState((prevState) => ({
-      ...prevState,
-      isGPSChecked: !prevState.isGPSChecked,
-      locationValue: prevState.isGPSChecked ? null : prevState.locationValue,
-    }));
-
-    if (!state.isGPSChecked) {
-      getGeolocation();
-    }
+    setGpsCheck(!gpsCheck);
   };
+
+  const handleSelectChange = (selected) => {
+    // Define the logic for handling select change here
+  };
+
+  useEffect(() => {
+    if (!gpsCheck) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            setLat(latitude);
+            setLon(longitude);
+          },
+          (error) => {
+            console.error("Error getting geolocation:", error);
+          }
+        );
+      } else {
+        console.error("Geolocation is not supported");
+      }
+    }
+  }, [gpsCheck]);
 
   const handleAvoidToll = () => {
     setTollCheck(!tollCheck);
@@ -79,55 +91,7 @@ const LocationLookup = ({
     return borderCheck;
   };
 
-  const [selectedValue, setSelectedValue] = useState(null);
-
-  const handleSelectChange = (selected) => {
-    setSelectedValue(selected);
-  };
-
-  const [state, setState] = useState({
-    isGPSChecked: false,
-    locationValue: null,
-    loc2Value: null,
-    suggestions: [],
-    suggestions2: [],
-    tripResults: null,
-    selectedRoutingMethod: null,
-  });
-
-  const [tripResults, setTripResults] = useState(null);
-
-  const testRunTrip = () => {
-    setTripResults(null); // Reset tripResults to null
-
-    setLoading(true); // Set loading state to true before making API call
-   // closePopper();
-    // Simulating loading time with setTimeout
-
-    const { locationValue, loc2Value, isGPSChecked } = state;
-
-    let latitude = "";
-    let longitude = "";
-
-    if (isGPSChecked && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude: lat, longitude: lon } = position.coords;
-          latitude = lat;
-          longitude = lon;
-          fetchTrip(latitude, longitude, locationValue, loc2Value);
-        },
-        (error) => {
-          console.error("Error getting geolocation:", error);
-          fetchTrip(latitude, longitude, locationValue, loc2Value);
-        }
-      );
-    } else {
-      fetchTrip(latitude, longitude, locationValue, loc2Value);
-    }
-  };
-
-  const fetchTrip = (latitude, longitude, locationValue, loc2Value) => {
+  const fetchTrip = (latitude, longitude) => {
     const trip = {
       TripLegs: [
         {
@@ -135,18 +99,14 @@ const LocationLookup = ({
           City: "",
           State: "",
           PostalCode: "",
-          Latitude: state.isGPSChecked ? latitude : "", // Use latitude if GPS is checked
-          Longitude: state.isGPSChecked ? longitude : "", // Use longitude if GPS is checked
-          LocationText: state.isGPSChecked ? null : selectedItem.text, // Use locationValue if GPS is not checked
+          Latitude: gpsCheck ? latitude : "", // Use latitude if GPS is checked
+          Longitude: gpsCheck ? longitude : "", // Use longitude if GPS is checked
+          LocationText: gpsCheck ? null : (selectedItem?.text || null), // Set to null if GPS is true, otherwise use selectedItem.text
         },
-        {
-          LocationText: selectedItem2.text|| null,
-        },
+        { LocationText: selectedItem2?.text || null },
       ],
       UnitMPG: 6,
-      RoutingMethod: state.selectedRoutingMethod
-        ? state.selectedRoutingMethod.label
-        : "Practical",
+      RoutingMethod: "Practical",
       BorderOpen: isBorderChecked(),
       AvoidTollRoads: isTollChecked(),
       VehicleType: 7,
@@ -159,7 +119,7 @@ const LocationLookup = ({
       GetFuelOptimization: false,
       apikey: tmAPIKey,
     };
-
+  
     fetch("https://prime.promiles.com/WebAPI/api/RunTrip", {
       method: "POST",
       headers: {
@@ -169,42 +129,65 @@ const LocationLookup = ({
     })
       .then((response) => response.json())
       .then((data) => {
-        setTripResults(data); // Update tripResults with new data
+        setTripResults(data);
         onTripResults(data);
       })
       .catch((error) => {
         console.error("Error:", error);
       })
       .finally(() => {
-        setLoading(false); // Set loading state to false after API call resolves
+        setLoading(false);
       });
   };
-
-  const { locationValue, loc2Value, suggestions, suggestions2 } = state;
+  
+  const testRunTrip = () => {
+    setTripResults(null);
+    setLoading(true);
+    console.log("gpsCheck:", gpsCheck);
+    if (gpsCheck && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setLat(latitude);
+          setLon(longitude);
+          fetchTrip(latitude, longitude);
+        },
+        (error) => {
+          console.error("Error getting geolocation:", error);
+          setLoading(false);
+        }
+      );
+    } else {
+      fetchTrip(lat, lon);
+    }
+  };
 
   return (
     <>
       <div style={{ background: "#3c3c3c" }}>
         <Origin
+          className="mx-auto w-60 p-2"
           selectedItem={selectedItem}
           updateSelectedItem={handleSelectedItemChange}
           lat={lat}
           lon={lon}
           handleLatChange={handleLatChange}
           handleLonChange={handleLonChange}
+          handleGPSboxChange={handleGPSboxChange}
           noDataText="No data found"
           minLength={3}
           itemText="name"
-          label="Select an item"
+          label="i.e 19145"
+          isGPSChecked={gpsCheck}
         />
+        <br />
         <Destination
-           selectedItem2={selectedItem2}
-           label="Destination"
-           minLength={3}
-          
-           noDataText="No matching destinations found"
-           itemText2="text"
-           updateSelectedItem={handleSelectedItemChange2}
+          selectedItem2={selectedItem2}
+          label="i.e Houston, tx"
+          minLength={3}
+          noDataText="No matching destinations found"
+          itemText2="text"
+          updateSelectedItem={handleSelectedItemChange2}
         />
 
         <MySelect onSelectChange={handleSelectChange} />
@@ -231,7 +214,6 @@ const LocationLookup = ({
                   Avoid Toll
                 </label>
               </div>
-              {/* You can use the isCheckboxChecked function as needed */}
             </form>
           </div>
         </label>
@@ -245,7 +227,7 @@ const LocationLookup = ({
               <div>
                 <Checkbox.Root
                   checked={!borderCheck}
-                  onChange={() => handleCheckborderChange("borderCheck")}
+                  onChange={handleCheckborderChange}
                   id="c3"
                 >
                   <Checkbox.Root className="CheckboxRoot" id="c3">
@@ -309,7 +291,7 @@ const LocationLookup = ({
 
 LocationLookup.propTypes = {
   onTripResults: PropTypes.func.isRequired,
-  closePopper: PropTypes.func.isRequired,
+  updateButtonClicked: PropTypes.func.isRequired,
 };
 
 export default LocationLookup;

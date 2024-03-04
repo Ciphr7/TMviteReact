@@ -13,7 +13,7 @@ import FuelAverages from "./FuelAverages";
 import RouteIcon from "@mui/icons-material/Route";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import AnalyticsIcon from "@mui/icons-material/Analytics";
-
+import tmLogo from "../images/tmLogo.png";
 import "./Footer.css";
 
 const Footer = () => {
@@ -121,7 +121,7 @@ const Footer = () => {
               }}
               aria-describedby={open ? "simple-popover" : undefined}
               variant="contained"
-              onClick={handleClick("top-end")}
+              onClick={handleClick("top-start")}
             >
               New Trip
               <LocalShippingIcon
@@ -183,6 +183,9 @@ const Footer = () => {
               placement={placement}
             >
               <Box sx={{ border: 0, p: 1, bgcolor: "#3c3c3c" }}>
+              <div className="flex justify-center">
+        <img className="h-20 pt-3 m-2" src={tmLogo} alt="" />
+      </div>
                 <LocationLookup
                   onTripResults={handleTripResults}
                   closePopper={handleClosePopper}

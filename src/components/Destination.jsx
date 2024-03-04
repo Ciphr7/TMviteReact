@@ -19,23 +19,23 @@ const Destination = (props) => {
   const handleAutocompleteChange = async (event, value) => {
     setSearchInput(value);
     setLoading(true);
-
+  
     try {
       const response = await fetch(
         `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${value}&apikey=bU03MSs2UjZIS21HMG5QSlIxUTB4QT090`
       );
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-
+  
       const data = await response.json();
-
+  
       const items = data.map((item) => ({
         text: `${item.City}, ${item.State}, ${item.PostalCode}`,
         value: item,
       }));
-
+  
       setAutocompleteItems(items);
     } catch (error) {
       console.error("Error fetching autocomplete data", error);
@@ -43,8 +43,16 @@ const Destination = (props) => {
       setLoading(false);
     }
   };
+  
+  let debounceTimer;
+  
+  const handleAutocompleteChangeDebounced = (event, value) => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => handleAutocompleteChange(event, value), 250);
+  };
 
   return (
+    
     <Autocomplete
       value={props.selectedItem2}
       onChange={(event, newValue) => props.updateSelectedItem(newValue)}
@@ -52,6 +60,7 @@ const Destination = (props) => {
       onInputChange={handleAutocompleteChange}
       options={autocompleteItems}
       loading={loading}
+    style={{ backgroundColor: "white", maxWidth: "300px", margin: "0 auto" }}
       getOptionLabel={(option) => option.text}
       renderInput={(params) => (
         <TextField
@@ -70,9 +79,11 @@ const Destination = (props) => {
             ),
           }}
         />
+        
       )}
     />
   );
 };
 
 export default Destination;
+

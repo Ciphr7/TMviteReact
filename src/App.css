@@ -1,3 +1,7 @@
+@font-face {
+  font-family: 'MADAVE';
+  src: url('./assets/tmFont/MADAVE.TTF') format('truetype');
+}
 
 @media only screen and (max-width: 600px) {
   th {
@@ -5,6 +9,7 @@
     word-wrap: break-word;
   }
 }
+
 
 html, body {
   height: calc(var(--vh, 1vh) * 100);

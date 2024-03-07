@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef  } from "react";
 import tmLogo from "../images/tmLogo.png";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { CheckIcon } from "@radix-ui/react-icons";
@@ -9,14 +9,10 @@ import MyLocationIcon from "@mui/icons-material/MyLocation";
 import "./LocationLookup.css";
 import MySelect from "./RouteOptions";
 import Autocomplete from "@mui/material/Autocomplete";
-import {
-  Container,
-  Switch,
-  FormControlLabel,
-  Grid,
-  CircularProgress,
-  TextField,
-} from "@mui/material";
+import Chip from "@mui/material/Chip";
+import Stack from "@mui/material/Stack";
+import { CircularProgress } from "@mui/material";
+import TextField from "@mui/material/TextField";
 
 const LocationLookup = ({
   onTripResults,
@@ -29,7 +25,7 @@ const LocationLookup = ({
   const [borderCheck, setBorderCheck] = useState(false);
   const [state, setState] = useState({
     isGPSChecked: false,
-    locationValue: null,
+    locationValue: '',
     loc2Value: null,
     suggestions: [],
     suggestions2: [],
@@ -63,6 +59,11 @@ const LocationLookup = ({
     updateButtonClicked(true);
   };
 
+  const handleOnClick = () => {
+    testRunTrip();
+    handleButtonClick();
+  };
+
   const handleGPSboxChange = () => {
     setState((prevState) => ({
       ...prevState,
@@ -91,9 +92,6 @@ const LocationLookup = ({
     return borderCheck;
   };
 
-  const [selectedValue, setSelectedValue] = useState(null);
-
- 
   useEffect(() => {
     if (state.locationValue && state.locationValue.length >= 3) {
       setLoading(true); // Set loading state to true before making API call
@@ -101,10 +99,10 @@ const LocationLookup = ({
         setState((prevState) => ({ ...prevState, suggestions }));
         setLoading(false); // Set loading state back to false after API call
       });
+    }else {
+      setState((prevState) => ({ ...prevState, suggestions: [] }));
     }
   }, [state.locationValue]);
-
-  
 
   useEffect(() => {
     if (state.loc2Value && state.loc2Value.length >= 3) {
@@ -113,60 +111,53 @@ const LocationLookup = ({
         setState((prevState) => ({ ...prevState, suggestions2 }));
         setLoading(false); // Set loading state back to false after API call
       });
+    } else {
+      setState((prevState) => ({ ...prevState, suggestions2: [] }));
     }
   }, [state.loc2Value]);
 
-
   const fetchSuggestions = (query) => {
     return new Promise((resolve, reject) => {
-      fetch(
-        `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${query}&apikey=${lookUpKey}`
-      )
-        .then((response) => response.json())
-        .then((data) =>
-          data.map(
-            (item) => `${item.City}, ${item.State}, ${item.PostalCode}`
-          )
+      setTimeout(() => {
+        fetch(
+          `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${query}&apikey=${lookUpKey}`
         )
-        .then(resolve)
-        .catch(reject);
+          .then((response) => response.json())
+          .then((data) =>
+            data.map((item) => `${item.City}, ${item.State}, ${item.PostalCode}`)
+          )
+          .then(resolve)
+          .catch(reject);
+      }, 500); // 500 milliseconds delay
     });
   };
+  
+ 
+  const handleInputChange = (event, newInputValue) => {
+    let modifiedValue = newInputValue;
+   
+    setState((prevState) => ({
+      ...prevState,
+      locationValue: modifiedValue,
+    }));
+  };
 
-
-  const fetchSuggestions2 = () => {
-    const { loc2Value } = state;
-    fetch(
-      `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${loc2Value}&apikey=${lookUpKey}`
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        const suggestions2 = data.map(
-          (item) => `${item.City}, ${item.State}, ${item.PostalCode}`
-        );
-        setState((prevState) => ({ ...prevState, suggestions2 }));
-      })
-      .catch((error) => {
-        console.error("Error fetching suggestions2:", error);
-      });
+  const handleInputChange2 = (event, newInputValue) => {
+    let modifiedValue = newInputValue;
+    
+    setState((prevState) => ({
+      ...prevState,
+      loc2Value: modifiedValue,
+    }));
   };
 
   const handleSelectChange = (selected) => {
-    setState((prevState) => ({ ...prevState, selectedRoutingMethod: selected }));
-  };
-
-  const handleInputChange2 = (event, newValue) => {
-    setState((prevState) => ({ ...prevState, loc2Value: newValue }));
-  };
-
-  
-  const handleSelect2 = (selectedValue2) => {
     setState((prevState) => ({
       ...prevState,
-      loc2Value: selectedValue2,
-      suggestions2: [selectedValue2],
+      selectedRoutingMethod: selected,
     }));
   };
+
   const [tripResults, setTripResults] = useState(null);
 
   const testRunTrip = () => {
@@ -177,7 +168,7 @@ const LocationLookup = ({
     // Simulating loading time with setTimeout
 
     const { locationValue, loc2Value, isGPSChecked } = state;
-
+   
     let latitude = "";
     let longitude = "";
 
@@ -257,10 +248,10 @@ const LocationLookup = ({
   return (
     <>
       <div style={{ background: "#3c3c3c" }}>
-        <label className="flex justify-center">
+        <label>
           <div
-            style={{ background: "#f44336", padding: "5px" }}
-            className="w-60 rounded-sm m-1 p-1"
+            style={{ background: "#0082CB", padding: "5px" }}
+            className=" rounded-sm m-1 p-1"
           >
             <form>
               <div className="flex items-center ">
@@ -286,66 +277,95 @@ const LocationLookup = ({
           </div>
         </label>
 
-        <div >
-     
-        <Autocomplete
-          className="searchBox text-black px-1 my-2 w-60 mx-auto"
-          options={suggestions}
-          loading={loading}
-          style={{ backgroundColor: "white", maxWidth: "300px", margin: "0 auto" }}
-          value={locationValue}
-          onChange={(event, newValue) => setState((prevState) => ({ ...prevState, locationValue: newValue }))}
-          onInputChange={(event, newInputValue) => setState((prevState) => ({ ...prevState, locationValue: newInputValue }))}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              placeholder="Search for Location"
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: (
-                  <>
-                    {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                    {params.InputProps.endAdornment}
-                  </>
-                ),
-              }}
-            />
-          )}
-        />
-        
-        <Autocomplete
-          className="searchBox text-black px-1 my-2 w-60 mx-auto"
-          options={suggestions2}
-          loading={loading}
-          style={{ backgroundColor: "white", maxWidth: "300px", margin: "0 auto" }}
-          value={loc2Value}
-          onChange={(event, newValue) => setState((prevState) => ({ ...prevState, loc2Value: newValue }))}
-          onInputChange={(event, newInputValue) => setState((prevState) => ({ ...prevState, loc2Value: newInputValue }))}
-       
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              placeholder="Search for Location"
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: (
-                  <>
-                    {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                    {params.InputProps.endAdornment}
-                  </>
-                ),
-              }}
-            />
-          )}
-        />
-         
-    </div>
- 
+        <div className="searchBoxWrapper">
+          <Autocomplete
+            className="searchBox text-black px-1 my-2 w-60 mx-auto rounded-sm"
+            options={suggestions}
+            loading={loading}
+            id="disable-portal"
+            disablePortal          
+            style={{
+              backgroundColor: "white",
+              maxWidth: "300px",
+              margin: "0 auto",
+              borderRadius: "2",
+            }}
+            value={locationValue}
+            onChange={(event, newValue) =>
+              setState((prevState) => ({
+                ...prevState,
+                locationValue: newValue,
+              }))
+            }
+            onInputChange={handleInputChange}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                placeholder="e.g. houston, tx"
+                variant="standard"
+                label="Origin"
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <>
+                      {loading ? (
+                        <CircularProgress color="primary" size={10} />
+                      ) : null}
+                      {params.InputProps.endAdornment}
+                    </>
+                  ),
+                }}
+                InputLabelProps={{
+                  style: { color: "primary" }, // Change label color here
+                }}
+              />
+            )}
+          />
+        </div>
+        <div className="searchBoxWrapper">
+          <Autocomplete
+            className="searchBox text-black px-1 my-2 w-60 mx-auto rounded-sm"
+            options={suggestions2}
+            loading={loading}
+            style={{
+              backgroundColor: "white",
+              maxWidth: "300px",
+              margin: "0 auto",
+            }}
+            value={loc2Value}
+            onChange={(event, newValue) =>
+              setState((prevState) => ({ ...prevState, loc2Value: newValue }))
+            }
+            onInputChange={handleInputChange2}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                placeholder="e.g. 19145"
+                variant="standard"
+                label="Destination"
+                InputProps={{
+                  ...params.InputProps,
+
+                  endAdornment: (
+                    <>
+                      {loading ? (
+                        <CircularProgress color="primary" size={10} />
+                      ) : null}
+                      {params.InputProps.endAdornment}
+                    </>
+                  ),
+                  style: { outline: "none" },
+                }}
+              />
+            )}
+          />
+        </div>
+
         <MySelect onSelectChange={handleSelectChange} />
 
         <label className="flex justify-center">
           <div
-            style={{ background: "#f44336" }}
+            style={{ background: "#0082CB" }}
             className="w-60 rounded-sm m-1 p-1"
           >
             <form>
@@ -372,7 +392,7 @@ const LocationLookup = ({
 
         <label className="flex justify-center">
           <div
-            style={{ background: "#f44336" }}
+            style={{ background: "#0082CB" }}
             className="w-60 rounded-sm m-1 p-1"
           >
             <form>
@@ -398,19 +418,19 @@ const LocationLookup = ({
         </label>
 
         <div>
-          <Button
-            style={{
-              background: "#3c3c3c",
-              padding: "2px 2px",
-              margin: "1px 1%",
-            }}
-            onClick={() => {
-              testRunTrip();
-              handleButtonClick();
-            }}
-          >
-            Run Trip
-          </Button>
+          <Stack direction="row" spacing={2} justifyContent="flex-end">
+            <Chip
+              style={{
+                background: "#0082CB",
+                padding: "2px 4px",
+                color: "#fff",
+                margin: "10px 1%",
+              }}
+              label="Run Trip"
+              variant="outlined"
+              onClick={handleOnClick}
+            />
+          </Stack>
 
           {buttonClicked && !tripResults ? (
             <p

@@ -5,10 +5,10 @@ const customStyles = {
   control: (provided, state) => ({
     ...provided,
     backgroundColor: 'white', // Change background color
-    borderColor: state.isFocused ? 'red' : 'red', // Change border color
+    borderColor: state.isFocused ? 'primary' : 'primary', // Change border color
     ':hover': {
-      backgroundColor: 'lightred', // Change hover-over color
-      boxShadow: state.isFocused ? '0 0 0 2px red' : 'none',
+      backgroundColor: 'primary', // Change hover-over color
+      boxShadow: state.isFocused ? '0 0 0 2px primary' : 'none',
     },
 
   }),
@@ -17,7 +17,7 @@ const customStyles = {
     backgroundColor: state.isSelected ? 'black' : 'white', // Change option background color when selected
     color: state.isSelected ? 'white' : 'black', // Change option text color when selected
     ':hover': {
-      backgroundColor: 'lightred', // Change hover-over color
+      backgroundColor: 'primary', // Change hover-over color
     },
   }),
   // Add more styles as needed

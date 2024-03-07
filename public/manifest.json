@@ -1,0 +1,16 @@
+{
+    "name": "TruckMiles",
+    "short_name": "TruckMiles",
+    "icons": [
+      {
+        "src": "./tmLogo.png",
+        "sizes": "2847x2836",
+        "type": "image/png"
+      }
+   
+    ],
+    "start_url": ".",
+    "display": "standalone",
+    "theme_color": "#0082CB",
+    "background_color": "#ffffff"
+  }

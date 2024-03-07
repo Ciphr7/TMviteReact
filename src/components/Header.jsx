@@ -12,9 +12,9 @@ const Header = ({ title }) => {
     <>
     <Box sx={{ flexGrow: 1 }}>
     <AppBar position="static">
-      <Toolbar style={{background : '#f44336 ', padding: '5px' }}>
+      <Toolbar style={{background : '#0082CB', padding: '5px' }}>
        
-        <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
+        <Typography variant="h4" component="div" sx={{ fontFamily: 'MADAVE', flexGrow: 1 }}>
         {title} <span style={{fontSize:18}} >&reg;</span>
         </Typography>
        

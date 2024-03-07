@@ -6,11 +6,29 @@ const TripResults = ({ tripResults }) => {
   return (
     <>
     <div style={{ maxHeight: "400px", overflowY: "scroll", scrollbarWidth: "none", msOverflowStyle: "none"}}>
+    <style>
+        {`
+          @media print {
+            body {
+              font-size: 12px;
+              line-height: 1.5;
+              margin: 10px;
+            }
+            div.print-container {
+              max-height: 400px;
+              overflow-y: scroll;
+              padding: 2px;
+              margin: 2px;
+              break-inside: avoid;
+            }
+          }
+        `}
+      </style>
       <div className="flex justify-center">
         <img className="h-20 pt-3 m-2" src={tmLogo} alt="" />
       </div>
       {tripResults ? (
-        <div>
+        <div className="print-container">
           <h2 className="flex justify-center">
             <strong>Trip Summary</strong>
           </h2>

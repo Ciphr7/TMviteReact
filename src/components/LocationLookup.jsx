@@ -211,6 +211,9 @@ const LocationLookup = (
 
   return (
     <>
+     <div className="flex justify-center">
+        <img className="h-20 pt-3 m-2" src={tmLogo} alt="" />
+      </div>
       <div style={{ background: "#3c3c3c" }}>
         <label>
           <div

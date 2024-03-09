@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef  } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import tmLogo from "../images/tmLogo.png";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { CheckIcon } from "@radix-ui/react-icons";
@@ -13,44 +13,60 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import { CircularProgress } from "@mui/material";
 import TextField from "@mui/material/TextField";
-
-const LocationLookup = ({
-  onTripResults,
-  closePopper,
-  updateButtonClicked,
-}) => {
+import OriginAutocomplete from "./OriginAutocomplete";
+import DestinationAutocomplete from "./DestinationAutocomplete";
+const LocationLookup = () => {
   const [buttonClicked, setButtonClicked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [tollCheck, setTollCheck] = useState(false);
   const [borderCheck, setBorderCheck] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [selectedOrigin, setSelectedOrigin] = useState(null);
+  const [destinationValue, setDestinationValue] = useState(null);
+  const [originInputValue, setOriginInputValue] = useState('');
+  const [destinationInputValue, setDestinationInputValue] = useState('');
   const [state, setState] = useState({
     isGPSChecked: false,
-    locationValue: '',
-    loc2Value: null,
+    locationValue: "", // Initialize locationValue
+    loc2Value: "", // Initialize loc2Value
     suggestions: [],
     suggestions2: [],
     tripResults: null,
     selectedRoutingMethod: null,
   });
 
+ 
+  const handleOriginChange = (newValue) => {
+    setSelectedOrigin(newValue);
+  };
+
+  const handleDestinationChange = (newValue) => {
+    setDestinationValue(newValue);
+  };
+
+  const handleOriginInputChange = (newValue) => {
+    setOriginInputValue(newValue);
+  };
+
+  const handleDestinationInputChange = (newValue) => {
+    setDestinationInputValue(newValue);
+  };
+
   const getGeolocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setState((prevState) => ({
-            ...prevState,
-            locationValue: `${latitude}${longitude}`,
-          }));
+          setSelectedOrigin({ latitude, longitude });
         },
         (error) => {
           console.error("Error getting geolocation:", error);
-          setState((prevState) => ({ ...prevState, locationValue: null }));
+          setSelectedOrigin(null);
         }
       );
     } else {
       console.error("Geolocation is not supported in this browser.");
-      setState((prevState) => ({ ...prevState, locationValue: null }));
+      setSelectedOrigin(null);
     }
   };
 
@@ -68,7 +84,7 @@ const LocationLookup = ({
     setState((prevState) => ({
       ...prevState,
       isGPSChecked: !prevState.isGPSChecked,
-      locationValue: prevState.isGPSChecked ? null : prevState.locationValue,
+      selectedOrigin: prevState.isGPSChecked ? null : prevState.selectedOrigin,
     }));
 
     if (!state.isGPSChecked) {
@@ -92,64 +108,6 @@ const LocationLookup = ({
     return borderCheck;
   };
 
-  useEffect(() => {
-    if (state.locationValue && state.locationValue.length >= 3) {
-      setLoading(true); // Set loading state to true before making API call
-      fetchSuggestions(state.locationValue).then((suggestions) => {
-        setState((prevState) => ({ ...prevState, suggestions }));
-        setLoading(false); // Set loading state back to false after API call
-      });
-    }else {
-      setState((prevState) => ({ ...prevState, suggestions: [] }));
-    }
-  }, [state.locationValue]);
-
-  useEffect(() => {
-    if (state.loc2Value && state.loc2Value.length >= 3) {
-      setLoading(true); // Set loading state to true before making API call
-      fetchSuggestions(state.loc2Value).then((suggestions2) => {
-        setState((prevState) => ({ ...prevState, suggestions2 }));
-        setLoading(false); // Set loading state back to false after API call
-      });
-    } else {
-      setState((prevState) => ({ ...prevState, suggestions2: [] }));
-    }
-  }, [state.loc2Value]);
-
-  const fetchSuggestions = (query) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        fetch(
-          `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${query}&apikey=${lookUpKey}`
-        )
-          .then((response) => response.json())
-          .then((data) =>
-            data.map((item) => `${item.City}, ${item.State}, ${item.PostalCode}`)
-          )
-          .then(resolve)
-          .catch(reject);
-      }, 500); // 500 milliseconds delay
-    });
-  };
-  
- 
-  const handleInputChange = (event, newInputValue) => {
-    let modifiedValue = newInputValue;
-   
-    setState((prevState) => ({
-      ...prevState,
-      locationValue: modifiedValue,
-    }));
-  };
-
-  const handleInputChange2 = (event, newInputValue) => {
-    let modifiedValue = newInputValue;
-    
-    setState((prevState) => ({
-      ...prevState,
-      loc2Value: modifiedValue,
-    }));
-  };
 
   const handleSelectChange = (selected) => {
     setState((prevState) => ({
@@ -164,11 +122,11 @@ const LocationLookup = ({
     setTripResults(null); // Reset tripResults to null
 
     setLoading(true); // Set loading state to true before making API call
-    closePopper();
+    // closePopper();
     // Simulating loading time with setTimeout
 
     const { locationValue, loc2Value, isGPSChecked } = state;
-   
+
     let latitude = "";
     let longitude = "";
 
@@ -200,10 +158,10 @@ const LocationLookup = ({
           PostalCode: "",
           Latitude: state.isGPSChecked ? latitude : "", // Use latitude if GPS is checked
           Longitude: state.isGPSChecked ? longitude : "", // Use longitude if GPS is checked
-          LocationText: state.isGPSChecked ? null : locationValue, // Use locationValue if GPS is not checked
+          LocationText: state.isGPSChecked ? null : selectedOrigin.text, // Use locationValue if GPS is not checked
         },
         {
-          LocationText: loc2Value || null,
+          LocationText: destinationValue.text || null,
         },
       ],
       UnitMPG: 6,
@@ -243,7 +201,7 @@ const LocationLookup = ({
       });
   };
 
-  const { locationValue, loc2Value, suggestions, suggestions2 } = state;
+  
 
   return (
     <>
@@ -278,88 +236,24 @@ const LocationLookup = ({
         </label>
 
         <div className="searchBoxWrapper">
-          <Autocomplete
-            className="searchBox text-black px-1 my-2 w-60 mx-auto rounded-sm"
-            options={suggestions}
-            loading={loading}
-            id="disable-portal"
-            disablePortal          
-            style={{
-              backgroundColor: "white",
-              maxWidth: "300px",
-              margin: "0 auto",
-              borderRadius: "2",
-            }}
-            value={locationValue}
-            onChange={(event, newValue) =>
-              setState((prevState) => ({
-                ...prevState,
-                locationValue: newValue,
-              }))
-            }
-            onInputChange={handleInputChange}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                placeholder="e.g. houston, tx"
-                variant="standard"
-                label="Origin"
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <>
-                      {loading ? (
-                        <CircularProgress color="primary" size={10} />
-                      ) : null}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
-                }}
-                InputLabelProps={{
-                  style: { color: "primary" }, // Change label color here
-                }}
-              />
-            )}
-          />
-        </div>
-        <div className="searchBoxWrapper">
-          <Autocomplete
-            className="searchBox text-black px-1 my-2 w-60 mx-auto rounded-sm"
-            options={suggestions2}
-            loading={loading}
-            style={{
-              backgroundColor: "white",
-              maxWidth: "300px",
-              margin: "0 auto",
-            }}
-            value={loc2Value}
-            onChange={(event, newValue) =>
-              setState((prevState) => ({ ...prevState, loc2Value: newValue }))
-            }
-            onInputChange={handleInputChange2}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                placeholder="e.g. 19145"
-                variant="standard"
-                label="Destination"
-                InputProps={{
-                  ...params.InputProps,
-
-                  endAdornment: (
-                    <>
-                      {loading ? (
-                        <CircularProgress color="primary" size={10} />
-                      ) : null}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
-                  style: { outline: "none" },
-                }}
-              />
-            )}
-          />
-        </div>
+        <OriginAutocomplete
+          value={selectedOrigin}
+          onChange={handleOriginChange}
+          onInputChange={handleOriginInputChange}
+          inputValue={originInputValue}
+          isGPSChecked={state.isGPSChecked} 
+          getOptionLabel={(option) =>
+            state.isGPSChecked ? `${option.latitude}, ${option.longitude}` : option
+          }
+        />
+        <DestinationAutocomplete
+          value={destinationValue}
+          onChange={handleDestinationChange}
+          onInputChange={handleDestinationInputChange}
+          inputValue={destinationInputValue}
+        />
+      </div>
+        <div className="searchBoxWrapper"></div>
 
         <MySelect onSelectChange={handleSelectChange} />
 
@@ -461,9 +355,15 @@ const LocationLookup = ({
   );
 };
 
+
 LocationLookup.propTypes = {
   onTripResults: PropTypes.func.isRequired,
   closePopper: PropTypes.func.isRequired,
+  locationValue: PropTypes.string.isRequired,
+  loc2Value: PropTypes.string.isRequired,
+  setLocationValue: PropTypes.func.isRequired,
+  setLoc2Value: PropTypes.func.isRequired,
 };
+
 
 export default LocationLookup;

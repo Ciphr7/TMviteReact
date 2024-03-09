@@ -15,7 +15,13 @@ import { CircularProgress } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import OriginAutocomplete from "./OriginAutocomplete";
 import DestinationAutocomplete from "./DestinationAutocomplete";
-const LocationLookup = () => {
+const LocationLookup = (
+  {
+    onTripResults,
+    closePopper,
+    updateButtonClicked,
+  }
+) => {
   const [buttonClicked, setButtonClicked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [tollCheck, setTollCheck] = useState(false);
@@ -122,7 +128,7 @@ const LocationLookup = () => {
     setTripResults(null); // Reset tripResults to null
 
     setLoading(true); // Set loading state to true before making API call
-    // closePopper();
+     closePopper();
     // Simulating loading time with setTimeout
 
     const { locationValue, loc2Value, isGPSChecked } = state;
@@ -209,7 +215,7 @@ const LocationLookup = () => {
         <label>
           <div
             style={{ background: "#0082CB", padding: "5px" }}
-            className=" rounded-sm m-1 p-1"
+            className=" rounded-sm m-1 p-1 mb-2"
           >
             <form>
               <div className="flex items-center ">
@@ -359,10 +365,10 @@ const LocationLookup = () => {
 LocationLookup.propTypes = {
   onTripResults: PropTypes.func.isRequired,
   closePopper: PropTypes.func.isRequired,
-  locationValue: PropTypes.string.isRequired,
-  loc2Value: PropTypes.string.isRequired,
-  setLocationValue: PropTypes.func.isRequired,
-  setLoc2Value: PropTypes.func.isRequired,
+  // locationValue: PropTypes.string.isRequired,
+  // loc2Value: PropTypes.string.isRequired,
+  // setLocationValue: PropTypes.func.isRequired,
+  // setLoc2Value: PropTypes.func.isRequired,
 };
 
 

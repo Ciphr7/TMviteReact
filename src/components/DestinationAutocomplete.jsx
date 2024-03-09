@@ -38,6 +38,7 @@ const DestinationAutocomplete = ({ value, onChange }) => {
   return (
     <Autocomplete
       value={value}
+      className="searchBox text-black px-1 my-2 w-60 mx-auto rounded-sm"
       onChange={(event, newValue) => onChange(newValue)}
       inputValue={inputValue}
       onInputChange={handleAutocompleteChange}
@@ -47,21 +48,25 @@ const DestinationAutocomplete = ({ value, onChange }) => {
       getOptionLabel={(option) => option.text}
       renderInput={(params) => (
         <TextField
-          {...params}
-          label="Destination"
-          color="primary"
-          InputProps={{
+        {...params}
+        placeholder="e.g. 77611"
+        variant="standard"
+        label="Destination"
+        InputProps={{
             ...params.InputProps,
             endAdornment: (
-              <React.Fragment>
-                {loading ? (
-                  <CircularProgress color="inherit" size={20} />
-                ) : null}
-                {params.InputProps.endAdornment}
-              </React.Fragment>
+                <>
+                    {loading ? (
+                        <CircularProgress color="primary" size={10} />
+                    ) : null}
+                    {params.InputProps.endAdornment}
+                </>
             ),
-          }}
-        />
+        }}
+        InputLabelProps={{
+            style: { color: 'primary' }, // Change label color here
+        }}
+    />
       )}
     />
   );

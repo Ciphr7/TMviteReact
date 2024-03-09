@@ -36,7 +36,7 @@ const Footer = () => {
   const [anchorEl2, setAnchorEl2] = React.useState(null);
   const [anchorEl3, setAnchorEl3] = React.useState(null);
 
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(true);
   const [open2, setOpen2] = React.useState(false);
   const [open3, setOpen3] = React.useState(false);
   const [open4, setOpen4] = React.useState(false);
@@ -75,12 +75,17 @@ const Footer = () => {
   const handleClickOpen = () => {
     setOpen4(true);
   };
-
+  const handleClickOpen2 = () => {
+    setOpen(true);
+  };
   const handleClose = () => {
     setOpen4(false);
   };
   const handleClose2 = () => {
     setOpen3(false);
+  };
+  const handleClose3 = () => {
+    setOpen(false);
   };
   const handleTripResults = (results) => {
     console.log("Results received:", results);
@@ -88,6 +93,8 @@ const Footer = () => {
     setButtonClicked(false); // Reset buttonClicked to false when trip results are received
     setLoading(false); // Set loading state to false when trip results are received
   };
+
+
 
   return (
     <footer
@@ -141,9 +148,9 @@ const Footer = () => {
                 padding: "2px 2px",
                 margin: "1px 1%",
               }}
-              aria-describedby={open ? "simple-popover" : undefined}
+              aria-describedby={open ? "alert-dialog-slide-description" : undefined}
               variant="contained"
-              onClick={handleClick("top-start")}
+              onClick={handleClickOpen2}
             >
               New Trip
               <LocalShippingIcon
@@ -192,25 +199,37 @@ const Footer = () => {
                 }}
               />
             </Button>
-
-            <Popper
-              className="popper"
-              id="simple-popover"
-              open={open}
-              anchorEl={anchorEl}
-              placement={placement}
-            >
-              <Box sx={{ borderRadius: 2, p: 1, bgcolor: "#3c3c3c" }}>
-                <div className="flex justify-center">
-                  <img className="h-20 pt-3 m-2" src={tmLogo} alt="" />
-                </div>
-                <LocationLookup
+            <Dialog
+            open={open}
+            TransitionComponent={Transition}
+            keepMounted
+            onClose={handleClose2}
+            aria-describedby="alert-dialog-slide-description"
+            PaperProps={{
+              style: {
+                backgroundColor: "#333", // Dark background color
+                color: "#fff", // White text color
+              },
+            }}
+          >
+            <DialogTitle>{"Trip Planner"}</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-slide-description">
+              <LocationLookup
                   onTripResults={handleTripResults}
                   closePopper={handleClosePopper}
                   updateButtonClicked={updateButtonClicked}
+                 
                 />
-              </Box>
-            </Popper>
+              </DialogContentText>
+            </DialogContent>
+
+            <DialogActions>
+              <Button onClick={handleClose3}>Close</Button>
+            </DialogActions>
+          </Dialog>
+
+          
             <Popper
               className="popper"
               id="simple-popover2"

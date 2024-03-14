@@ -32,40 +32,18 @@ const Footer = () => {
   const [buttonClicked, setButtonClicked] = useState(false);
   const [tripResults, setTripResults] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [anchorEl2, setAnchorEl2] = React.useState(null);
-  const [anchorEl3, setAnchorEl3] = React.useState(null);
-
   const [open, setOpen] = React.useState(true);
   const [open2, setOpen2] = React.useState(false);
   const [open3, setOpen3] = React.useState(false);
   const [open4, setOpen4] = React.useState(false);
-  const [placement, setPlacement] = React.useState();
-  const [placement2, setPlacement2] = React.useState();
-  const [placement3, setPlacement3] = React.useState();
-  const [placement4, setPlacement4] = React.useState();
-
+  const [selectedOrigin, setSelectedOrigin] = useState(null);
   const updateButtonClicked = (value) => {
     setButtonClicked(value);
     setLoading(value); // Set loading state to true when button is clicked
   };
 
-  const handleClick = (newPlacement) => (event) => {
-    setAnchorEl(event.currentTarget);
-    setOpen((prev) => placement !== newPlacement || !prev);
-    setPlacement(newPlacement);
-  };
-
-  const handleClick2 = (newPlacement) => (event) => {
-    setAnchorEl2(event.currentTarget);
-    setOpen2((prev) => placement2 !== newPlacement || !prev);
-    setPlacement2(newPlacement);
-  };
-
-  const handleClick3 = (newPlacement) => (event) => {
-    setAnchorEl3(event.currentTarget);
-    setOpen3((prev) => placement3 !== newPlacement || !prev);
-    setPlacement3(newPlacement);
+  const handleSelectedOriginChange = (origin) => {
+    setSelectedOrigin(origin);
   };
 
   const handleClosePopper = () => {
@@ -78,6 +56,12 @@ const Footer = () => {
   const handleClickOpen2 = () => {
     setOpen(true);
   };
+  const handleClickOpen3 = () => {
+    setOpen2(true);
+  };
+  const handleClickOpen4 = () => {
+    setOpen3(true);
+  };
   const handleClose = () => {
     setOpen4(false);
   };
@@ -87,14 +71,16 @@ const Footer = () => {
   const handleClose3 = () => {
     setOpen(false);
   };
+  const handleClose4 = () => {
+    setOpen2(false);
+  };
   const handleTripResults = (results) => {
     console.log("Results received:", results);
     setTripResults(results);
     setButtonClicked(false); // Reset buttonClicked to false when trip results are received
     setLoading(false); // Set loading state to false when trip results are received
+    window.scrollBy(0, -100);
   };
-
-
 
   return (
     <footer
@@ -139,7 +125,7 @@ const Footer = () => {
               background: "#0082CB",
               padding: "1px 1%",
               margin: "auto auto",
-              display: "inline-flex",
+              display: "flex",
             }}
           >
             <Button
@@ -148,7 +134,9 @@ const Footer = () => {
                 padding: "2px 2px",
                 margin: "1px 1%",
               }}
-              aria-describedby={open ? "alert-dialog-slide-description" : undefined}
+              aria-describedby={
+                open ? "alert-dialog-slide-description" : undefined
+              }
               variant="contained"
               onClick={handleClickOpen2}
             >
@@ -167,9 +155,11 @@ const Footer = () => {
                 padding: "2px 2px",
                 margin: "1px 1%",
               }}
-              aria-describedby={open2 ? "simple-popover2" : undefined}
+              aria-describedby={
+                open2 ? "alert-dialog-slide-description" : undefined
+              }
               variant="contained"
-              onClick={handleClick2("top-start")}
+              onClick={handleClickOpen3}
             >
               Trip Summary
               <RouteIcon
@@ -186,9 +176,11 @@ const Footer = () => {
                 padding: "2px 2px",
                 margin: "1px 1%",
               }}
-              aria-describedby={open3 ? "simple-popover3" : undefined}
+              aria-describedby={
+                open3 ? "alert-dialog-slide-description" : undefined
+              }
               variant="contained"
-              onClick={handleClick3("top-end")}
+              onClick={handleClickOpen4}
             >
               Fuel Prices
               <AnalyticsIcon
@@ -199,7 +191,55 @@ const Footer = () => {
                 }}
               />
             </Button>
-            <Dialog
+          </div>
+          <p>Powered by</p>
+          <Button
+            style={{
+              background: "#3c3c3c",
+              padding: "2px 2px",
+              margin: "1px 1%",
+              textDecoration: "none", // Remove underline from anchor tag
+              color: "white", // Change text color
+            }}
+            variant="contained"
+            component="a" // Render the button as an anchor tag
+            href="https://www.promiles.com/promiles-online/" // Set the URL you want to open
+            target="_blank" // Open the URL in a new tab
+          >
+            ProMiles Online
+            <LocalShippingIcon
+              style={{
+                background: "#3c3c3c",
+                padding: "2px 2px",
+                margin: "1px 1%",
+              }}
+            />
+          </Button>
+
+          <Button
+            style={{
+              background: "#3c3c3c",
+              padding: "2px 2px",
+              margin: "1px 1%",
+              textDecoration: "none", // Remove underline from anchor tag
+              color: "white", // Change text color
+            }}
+            variant="contained"
+            component="a" // Render the button as an anchor tag
+            href="https://www.promiles.com/fuel-finder/" // Set the URL you want to open
+            target="_blank" // Open the URL in a new tab
+          >
+            Fuel Finder
+            <LocalShippingIcon
+              style={{
+                background: "#3c3c3c",
+                padding: "2px 2px",
+                margin: "1px 1%",
+              }}
+            />
+          </Button>
+         
+          <Dialog
             open={open}
             TransitionComponent={Transition}
             keepMounted
@@ -215,11 +255,10 @@ const Footer = () => {
             <DialogTitle>{"Trip Planner"}</DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-slide-description">
-              <LocationLookup
+                <LocationLookup
                   onTripResults={handleTripResults}
                   closePopper={handleClosePopper}
                   updateButtonClicked={updateButtonClicked}
-                 
                 />
               </DialogContentText>
             </DialogContent>
@@ -228,34 +267,38 @@ const Footer = () => {
               <Button onClick={handleClose3}>Close</Button>
             </DialogActions>
           </Dialog>
-
-          
-            <Popper
-              className="popper"
-              id="simple-popover2"
-              open={open2}
-              anchorEl={anchorEl2}
-              placement={placement2}
-            >
-              <Box
-                className="popper-content"
-                sx={{
-                  borderRadius: 1,
-                  borderColor: "#3c3c3c",
-                  p: 1,
-                  color: "white",
-                  bgcolor: "#3c3c3c",
-                }}
-              >
+          <Dialog
+            open={open2}
+            TransitionComponent={Transition}
+            keepMounted
+            onClose={handleClose4}
+            aria-describedby="alert-dialog-slide-description"
+            PaperProps={{
+              style: {
+                backgroundColor: "#333", // Dark background color
+                color: "#fff", // White text color
+              },
+            }}
+          >
+            <DialogTitle className="flex flex-col items-center justify-center">
+              <img className="h-20 pt-3 m-2" src={tmLogo} alt="" />
+              <p>Trip Summary</p>
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-slide-description">
                 <TripResults tripResults={tripResults} />
-              </Box>
-            </Popper>
-          </div>
+              </DialogContentText>
+            </DialogContent>
+
+            <DialogActions>
+              <Button onClick={handleClose4}>Close</Button>
+            </DialogActions>
+          </Dialog>
           <Dialog
             open={open3}
             TransitionComponent={Transition}
             keepMounted
-            onClose={handleClose2}
+            onClose={handleClose4}
             aria-describedby="alert-dialog-slide-description"
             PaperProps={{
               style: {

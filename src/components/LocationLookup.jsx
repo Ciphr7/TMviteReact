@@ -15,22 +15,25 @@ import { CircularProgress } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import OriginAutocomplete from "./OriginAutocomplete";
 import DestinationAutocomplete from "./DestinationAutocomplete";
-const LocationLookup = (
-  {
-    onTripResults,
-    closePopper,
-    updateButtonClicked,
-  }
-) => {
+
+import CalculateIcon from "@mui/icons-material/Calculate";
+
+const LocationLookup = ({
+  onTripResults,
+  closePopper,
+  updateButtonClicked,
+}) => {
   const [buttonClicked, setButtonClicked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [tollCheck, setTollCheck] = useState(false);
   const [borderCheck, setBorderCheck] = useState(false);
-  const [inputValue, setInputValue] = useState("");
-  const [selectedOrigin, setSelectedOrigin] = useState(null);
-  const [destinationValue, setDestinationValue] = useState(null);
-  const [originInputValue, setOriginInputValue] = useState('');
-  const [destinationInputValue, setDestinationInputValue] = useState('');
+  
+  const [selectedOrigin, setSelectedOrigin] = useState([]);
+  const [selectedDestination, setSelectedDestination] = useState([]);
+ 
+  const [originInputValue, setOriginInputValue] = useState([]);
+  const [prevOriginInputValue, setPrevOriginInputValue] = useState([]);
+
   const [state, setState] = useState({
     isGPSChecked: false,
     locationValue: "", // Initialize locationValue
@@ -40,22 +43,83 @@ const LocationLookup = (
     tripResults: null,
     selectedRoutingMethod: null,
   });
+  const [autocompleteItems, setAutocompleteItems] = useState([]);
+  const [destination, setDestination] = useState("");
 
- 
-  const handleOriginChange = (newValue) => {
-    setSelectedOrigin(newValue);
+  const [isGPSChecked, setIsGPSChecked] = useState(false); // State to manage GPS checkbox
+  const [latitude, setLatitude] = useState(''); // State to store latitude
+  const [longitude, setLongitude] = useState(''); // State to store longitude
+  const handleAutocompleteChange = async (event, value) => {
+    // Your existing logic to fetch autocomplete items
+
+    // Scroll the screen up by 100 pixels when new autocomplete items are received
+    window.scrollBy(0, -100);
   };
 
-  const handleDestinationChange = (newValue) => {
-    setDestinationValue(newValue);
+  const handleOriginSelected = (origin) => {
+    setSelectedOrigin(origin.LocationText);
+    console.log("origin is", origin.LocationText);
+    console.log("SelectedOrigin is", selectedOrigin);
+    
+  };
+  const handleDestinationSelected = (destination) => {
+    setSelectedDestination(destination.LocationText);
+    console.log("Destination is", destination.LocationText);
+    console.log("SelectedDestiation is", selectedDestination);
+  };
+  const handleOriginChange = (newValue) => {
+    onOriginChange(newValue);
+  };
+
+  const handleDestinationChange = (value) => {
+    setDestination(value);
+    console.log(value);
   };
 
   const handleOriginInputChange = (newValue) => {
+    setPrevOriginInputValue(originInputValue);
     setOriginInputValue(newValue);
   };
 
-  const handleDestinationInputChange = (newValue) => {
-    setDestinationInputValue(newValue);
+  const handleGPSCheckboxChange = () => {
+    setIsGPSChecked(!isGPSChecked); // Toggle GPS checkbox
+    setState((prevState) => ({
+      ...prevState,
+      isGPSChecked: !prevState.isGPSChecked,
+    }));
+    if (!isGPSChecked) {
+      // Reset selectedOrigin and originInputValue when GPS checkbox is unchecked
+      setSelectedOrigin([]);
+      setOriginInputValue([]);
+    }
+    if (!isGPSChecked && prevOriginInputValue !== null) {
+      // If GPS is checked, get user's current location
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLatitude(position.coords.latitude); // Set latitude
+          setLongitude(position.coords.longitude); // Set longitude
+        },
+        (error) => {
+          console.error("Error getting geolocation:", error);
+        }
+      );
+    } else {
+      // Reset origin input value to previous value
+      setOriginInputValue(prevOriginInputValue);
+    }
+  };
+
+
+  const handleGPSboxChange = () => {
+    setState((prevState) => ({
+      ...prevState,
+      isGPSChecked: !prevState.isGPSChecked,
+      selectedOrigin: prevState.isGPSChecked ? null : prevState.selectedOrigin,
+    }));
+
+    if (!state.isGPSChecked) {
+      getGeolocation();
+    }
   };
 
   const getGeolocation = () => {
@@ -86,17 +150,6 @@ const LocationLookup = (
     handleButtonClick();
   };
 
-  const handleGPSboxChange = () => {
-    setState((prevState) => ({
-      ...prevState,
-      isGPSChecked: !prevState.isGPSChecked,
-      selectedOrigin: prevState.isGPSChecked ? null : prevState.selectedOrigin,
-    }));
-
-    if (!state.isGPSChecked) {
-      getGeolocation();
-    }
-  };
 
   const handleAvoidToll = () => {
     setTollCheck(!tollCheck);
@@ -114,7 +167,6 @@ const LocationLookup = (
     return borderCheck;
   };
 
-
   const handleSelectChange = (selected) => {
     setState((prevState) => ({
       ...prevState,
@@ -128,7 +180,7 @@ const LocationLookup = (
     setTripResults(null); // Reset tripResults to null
 
     setLoading(true); // Set loading state to true before making API call
-     closePopper();
+    closePopper();
     // Simulating loading time with setTimeout
 
     const { locationValue, loc2Value, isGPSChecked } = state;
@@ -164,10 +216,14 @@ const LocationLookup = (
           PostalCode: "",
           Latitude: state.isGPSChecked ? latitude : "", // Use latitude if GPS is checked
           Longitude: state.isGPSChecked ? longitude : "", // Use longitude if GPS is checked
-          LocationText: state.isGPSChecked ? null : selectedOrigin.text, // Use locationValue if GPS is not checked
+          LocationText: state.isGPSChecked
+            ? null
+            : selectedOrigin
+            ? selectedOrigin
+            : "", // Use locationValue if GPS is not checked
         },
         {
-          LocationText: destinationValue.text || null,
+          LocationText: selectedDestination ? selectedDestination : "",
         },
       ],
       UnitMPG: 6,
@@ -207,11 +263,9 @@ const LocationLookup = (
       });
   };
 
-  
-
   return (
     <>
-     <div className="flex justify-center">
+      <div className="flex justify-center">
         <img className="h-20 pt-3 m-2" src={tmLogo} alt="" />
       </div>
       <div style={{ background: "#3c3c3c" }}>
@@ -225,7 +279,7 @@ const LocationLookup = (
                 <Checkbox.Root
                   className="CheckboxRoot"
                   checked={!state.isGPSChecked}
-                  onChange={handleGPSboxChange}
+                  onChange={handleGPSCheckboxChange}
                   id="c1"
                 >
                   <Checkbox.Root className="CheckboxRoot" id="c1">
@@ -245,23 +299,28 @@ const LocationLookup = (
         </label>
 
         <div className="searchBoxWrapper">
-        <OriginAutocomplete
-          value={selectedOrigin}
-          onChange={handleOriginChange}
-          onInputChange={handleOriginInputChange}
-          inputValue={originInputValue}
-          isGPSChecked={state.isGPSChecked} 
-          getOptionLabel={(option) =>
-            state.isGPSChecked ? `${option.latitude}, ${option.longitude}` : option
-          }
-        />
-        <DestinationAutocomplete
-          value={destinationValue}
-          onChange={handleDestinationChange}
-          onInputChange={handleDestinationInputChange}
-          inputValue={destinationInputValue}
-        />
-      </div>
+          <OriginAutocomplete
+             value={isGPSChecked ? selectedOrigin : ''}
+            onOriginSelected={handleOriginSelected}
+            onChange={handleOriginChange}
+            onInputChange={handleOriginInputChange}
+            onAutocompleteChange={handleAutocompleteChange}
+            inputValue={originInputValue}
+            isGPSChecked={isGPSChecked} // Pass isGPSChecked prop
+            latitude={latitude} // Pass latitude prop
+            longitude={longitude} // Pass longitude prop
+            getOptionLabel={(option) =>
+              state.isGPSChecked
+                ? `${option.latitude}, ${option.longitude}`
+                : option
+            }
+          />
+          <DestinationAutocomplete
+            value={selectedDestination}
+            onChange={handleDestinationChange}
+            onDestinationSelected={handleDestinationSelected}
+          />
+        </div>
         <div className="searchBoxWrapper"></div>
 
         <MySelect onSelectChange={handleSelectChange} />
@@ -331,7 +390,11 @@ const LocationLookup = (
               }}
               label="Run Trip"
               variant="outlined"
+              sx={{ fontSize: 15, color: "#ffffff" }}
               onClick={handleOnClick}
+              avatar={
+                <CalculateIcon style={{ fontSize: 15, color: "#ffffff" }} />
+              }
             />
           </Stack>
 
@@ -364,7 +427,6 @@ const LocationLookup = (
   );
 };
 
-
 LocationLookup.propTypes = {
   onTripResults: PropTypes.func.isRequired,
   closePopper: PropTypes.func.isRequired,
@@ -373,6 +435,5 @@ LocationLookup.propTypes = {
   // setLocationValue: PropTypes.func.isRequired,
   // setLoc2Value: PropTypes.func.isRequired,
 };
-
 
 export default LocationLookup;

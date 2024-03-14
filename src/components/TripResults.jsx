@@ -24,14 +24,11 @@ const TripResults = ({ tripResults }) => {
           }
         `}
       </style>
-      <div className="flex justify-center">
-        <img className="h-20 pt-3 m-2" src={tmLogo} alt="" />
-      </div>
+   
+      <div style={{ color: 'white' }}>
       {tripResults ? (
         <div className="print-container">
-          <h2 className="flex justify-center">
-            <strong>Trip Summary</strong>
-          </h2>
+        
           {/* Render the trip results using the received data */}
           <p>Origin: {tripResults.TripLegs[0].LocationText}</p>
           <p>Destination: {tripResults.TripLegs[1].LocationText}</p>
@@ -41,44 +38,55 @@ const TripResults = ({ tripResults }) => {
             <strong>Jurisdiction Mileage</strong>
           </h3>
           {tripResults.JurisdictionMileage ? (
-            <ul>
-              {tripResults.JurisdictionMileage.map((mileage) => (
-                <li key={mileage.State}>
-                  <p>
-                    <strong>{mileage.State}:</strong> {mileage.TotalMiles} miles
-                  </p>
-                  <p>
-                    Toll Miles: {mileage.TollMiles}, Non-Toll Miles:{" "}
-                    {mileage.NonTollMiles}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No jurisdiction mileage data available yet.</p>
-          )}
+  <table>
+    <thead>
+      <tr>
+        <th>State</th>
+        <th>Total Miles</th>
+        <th>Toll Miles</th>
+        <th>Non-Toll Miles</th>
+      </tr>
+    </thead>
+    <tbody>
+      {tripResults.JurisdictionMileage.map((mileage, index) => (
+        <tr key={index}>
+          <td>{mileage.State}</td>
+          <td>{mileage.TotalMiles} miles</td>
+          <td>{mileage.TollMiles}</td>
+          <td>{mileage.NonTollMiles}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+) : (
+  <p>No jurisdiction mileage data available yet.</p>
+)}
+
           <h1 className="flex justify-center">
             {" "}
             <strong>Driving Directions</strong>
           </h1>
           {tripResults.DrivingDirections ? (
-            <ul>
-              {tripResults.DrivingDirections.map((direction, index) => (
-                <li key={index}>
-                  <p>
-                    <strong>Maneuver:</strong> {direction.Maneuver}
-                  </p>
-                  <p>
-                    <strong>DistanceFrmStart:</strong>{" "}
-                    {direction.DistanceAtStart}
-                  </p>
-                  <p>
-                    <strong>LegMiles:</strong> {direction.LegMiles}
-                  </p>
-                  {/* Add more properties as needed */}
-                </li>
-              ))}
-            </ul>
+         <table>
+         <thead>
+           <tr>
+             <th></th>
+             <th>For</th>
+             <th>At</th>
+             {/* Add more headings for additional properties if needed */}
+           </tr>
+         </thead>
+         <tbody>
+           {tripResults.DrivingDirections.map((direction, index) => (
+             <tr key={index}>
+               <td>{direction.Maneuver}</td>
+               <td>{direction.DistanceAtStart}</td>
+               <td>{direction.LegMiles}</td>
+               {/* Add more cells for additional properties if needed */}
+             </tr>
+           ))}
+         </tbody>
+       </table>
           ) : (
             <p>No driving directions available yet.</p>
           )}
@@ -87,7 +95,7 @@ const TripResults = ({ tripResults }) => {
         <p>No trip results available yet.</p>
       )}
     </div>
-    
+    </div>
      {/* <div ref={mapRef} style={{ height: '400px', width: '100%' }} />; */}
      </>
   );

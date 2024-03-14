@@ -1,84 +1,127 @@
-import React, { useState } from "react";
-import Autocomplete from "@mui/material/Autocomplete";
-import { CircularProgress, TextField } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { CircularProgress, TextField, IconButton } from "@mui/material";
+import ClearIcon from "@mui/icons-material/Clear";
+import { useTheme } from "@mui/material/styles";
 
-const OriginAutocomplete = ({ value, onChange, isGPSChecked }) => {
+const OriginAutocomplete = ({
+  onOriginSelected,
+  latitude,
+  longitude,
+  value,
+  onChange,
+  isGPSChecked,
+}) => {
   const [autocompleteItems, setAutocompleteItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [inputValue, setInputValue] = useState("");
+  const theme = useTheme();
 
-  const handleAutocompleteChange = async (event, value) => {
-    setInputValue(value);
-    setLoading(true);
+  useEffect(() => {
+    const handleAutocompleteChange = async (value) => {
+      setInputValue(value);
+      setLoading(true);
 
-    try {
-      const response = await fetch(
-        `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${value}&apikey=bU03MSs2UjZIS21HMG5QSlIxUTB4QT090`
-      );
+      try {
+        const response = await fetch(
+          `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${value}&apikey=bU03MSs2UjZIS21HMG5QSlIxUTB4QT090`
+        );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        const items = data.map((item) => ({
+          text: `${item.City}, ${item.State}, ${item.PostalCode}`,
+          value: item,
+        }));
+
+        setAutocompleteItems(items);
+
+        // Scroll the screen up by 100 pixels to show new autocompleteItems
+        window.scrollBy(0, -100);
+      } catch (error) {
+        console.error("Error fetching autocomplete data", error);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      const data = await response.json();
+    const inputElement = document.getElementById("origin-input");
+    if (inputElement) {
+      const handleInput = (event) => {
+        const value = event.target.value;
+        handleAutocompleteChange(value);
+      };
+      inputElement.addEventListener("input", handleInput);
 
-      const items = data.map((item) => ({
-        text: `${item.City}, ${item.State}, ${item.PostalCode}`,
-        value: item,
-      }));
-
-      setAutocompleteItems(items);
-    } catch (error) {
-      console.error("Error fetching autocomplete data", error);
-    } finally {
-      setLoading(false);
+      return () => {
+        inputElement.removeEventListener("input", handleInput);
+      };
     }
+  }, []); // Dependency array is empty since this effect should run once
+
+  useEffect(() => {
+    if (!isGPSChecked) {
+      // If GPS is unchecked, clear the input value
+      setInputValue("");
+    } else {
+      // If GPS is checked, use the provided latitude and longitude
+      const locationText = `${latitude},${longitude}`;
+      setInputValue(locationText);
+    }
+  }, [isGPSChecked, latitude, longitude]);
+
+  const handleSelect = (event, selectedItem) => {
+    setInputValue(selectedItem.text);
+    setAutocompleteItems([]); // Reset autocompleteItems to empty array
+    onOriginSelected(selectedItem.value); // Pass selected origin to parent component
+  };
+
+  const handleClear = () => {
+    setInputValue("");
   };
 
   return (
-    <Autocomplete
-    className="searchBox text-black px-1 my-2 w-60 mx-auto rounded-sm"
-      value={value}
-      onChange={(event, newValue) => onChange(newValue)}
-      inputValue={inputValue}
-      style={{ backgroundColor: "white", maxWidth: "300px", margin: "0 auto" }}
-      onInputChange={handleAutocompleteChange}
-      options={autocompleteItems}
-      loading={loading}
-     
-      getOptionLabel={(option) =>
-        isGPSChecked &&
-        value &&
-        value.latitude &&
-        value.longitude &&
-        option.latitude &&
-        option.longitude
-          ? `${option.latitude}, ${option.longitude}`
-          : option.text || ""
-      }
-      renderInput={(params) => (
-        <TextField
-        {...params}
-        placeholder="e.g. houston, tx"
+    <div className="searchBox text-white px-1 my-2 w-60 mx-auto rounded-sm">
+      <TextField
+        id="origin-input"
+        placeholder={inputValue ? "" : "e.g. houston, tx"}
         variant="standard"
-        label="Origin"
+        label={inputValue ? "Origin" : ""}
+        value={inputValue}
+        onChange={(event) => {
+          // Only update inputValue if GPS is not checked
+          if (!isGPSChecked) {
+            setInputValue(event.target.value);
+          }
+        }}
         InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-                <>
-                    {loading ? (
-                        <CircularProgress color="primary" size={10} />
-                    ) : null}
-                    {params.InputProps.endAdornment}
-                </>
-            ),
+          style: { backgroundColor: "white" }, // Set background color to white
+          endAdornment: (
+            <>
+              {loading ? <CircularProgress color="primary" size={10} /> : null}
+              {inputValue && (
+                <IconButton onClick={handleClear} size="small">
+                  <ClearIcon />
+                </IconButton>
+              )}
+            </>
+          ),
         }}
         InputLabelProps={{
-            style: { color: 'primary' }, // Change label color here
+          style: { color: theme.palette.primary.main }, // Change label color here
         }}
-    />
-      )}
-    />
+      />
+      <ul className="bg-danger">
+        {autocompleteItems.map((item, index) => (
+          <li key={index} onClick={(event) => handleSelect(event, item)}>
+            {item.text}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 };
 

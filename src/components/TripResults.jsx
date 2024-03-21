@@ -71,8 +71,8 @@ const TripResults = ({ tripResults }) => {
          <thead>
            <tr>
              <th></th>
-             <th>For</th>
-             <th>At</th>
+             <th>AT</th>
+             <th>FOR</th>
              {/* Add more headings for additional properties if needed */}
            </tr>
          </thead>

@@ -1,21 +1,16 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import tmLogo from "../images/tmLogo.png";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { CheckIcon } from "@radix-ui/react-icons";
-import { lookUpKey, tmAPIKey } from "./tmAPIKey";
-import Button from "@mui/material/Button";
+import { tmAPIKey } from "./tmAPIKey";
 import PropTypes from "prop-types";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 import "./LocationLookup.css";
 import MySelect from "./RouteOptions";
-import Autocomplete from "@mui/material/Autocomplete";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
-import { CircularProgress } from "@mui/material";
-import TextField from "@mui/material/TextField";
 import OriginAutocomplete from "./OriginAutocomplete";
 import DestinationAutocomplete from "./DestinationAutocomplete";
-
 import CalculateIcon from "@mui/icons-material/Calculate";
 
 const LocationLookup = ({
@@ -27,10 +22,10 @@ const LocationLookup = ({
   const [loading, setLoading] = useState(false);
   const [tollCheck, setTollCheck] = useState(false);
   const [borderCheck, setBorderCheck] = useState(false);
-  
-  const [selectedOrigin, setSelectedOrigin] = useState([]);
-  const [selectedDestination, setSelectedDestination] = useState([]);
- 
+
+  const [selectedOrigin, setSelectedOrigin] = useState(null);
+  const [selectedDestination, setSelectedDestination] = useState(null);
+
   const [originInputValue, setOriginInputValue] = useState([]);
   const [prevOriginInputValue, setPrevOriginInputValue] = useState([]);
 
@@ -43,12 +38,10 @@ const LocationLookup = ({
     tripResults: null,
     selectedRoutingMethod: null,
   });
-  const [autocompleteItems, setAutocompleteItems] = useState([]);
-  const [destination, setDestination] = useState("");
 
   const [isGPSChecked, setIsGPSChecked] = useState(false); // State to manage GPS checkbox
-  const [latitude, setLatitude] = useState(''); // State to store latitude
-  const [longitude, setLongitude] = useState(''); // State to store longitude
+  const [latitude, setLatitude] = useState(""); // State to store latitude
+  const [longitude, setLongitude] = useState(""); // State to store longitude
   const handleAutocompleteChange = async (event, value) => {
     // Your existing logic to fetch autocomplete items
 
@@ -60,7 +53,6 @@ const LocationLookup = ({
     setSelectedOrigin(origin.LocationText);
     console.log("origin is", origin.LocationText);
     console.log("SelectedOrigin is", selectedOrigin);
-    
   };
   const handleDestinationSelected = (destination) => {
     setSelectedDestination(destination.LocationText);
@@ -110,46 +102,11 @@ const LocationLookup = ({
   };
 
 
-  const handleGPSboxChange = () => {
-    setState((prevState) => ({
-      ...prevState,
-      isGPSChecked: !prevState.isGPSChecked,
-      selectedOrigin: prevState.isGPSChecked ? null : prevState.selectedOrigin,
-    }));
-
-    if (!state.isGPSChecked) {
-      getGeolocation();
-    }
-  };
-
-  const getGeolocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setSelectedOrigin({ latitude, longitude });
-        },
-        (error) => {
-          console.error("Error getting geolocation:", error);
-          setSelectedOrigin(null);
-        }
-      );
-    } else {
-      console.error("Geolocation is not supported in this browser.");
-      setSelectedOrigin(null);
-    }
-  };
-
-  const handleButtonClick = () => {
-    // Call the updateButtonClicked function with the new value
-    updateButtonClicked(true);
-  };
 
   const handleOnClick = () => {
     testRunTrip();
-    handleButtonClick();
+   // handleButtonClick();
   };
-
 
   const handleAvoidToll = () => {
     setTollCheck(!tollCheck);
@@ -178,10 +135,7 @@ const LocationLookup = ({
 
   const testRunTrip = () => {
     setTripResults(null); // Reset tripResults to null
-
     setLoading(true); // Set loading state to true before making API call
-    closePopper();
-    // Simulating loading time with setTimeout
 
     const { locationValue, loc2Value, isGPSChecked } = state;
 
@@ -207,6 +161,21 @@ const LocationLookup = ({
   };
 
   const fetchTrip = (latitude, longitude, locationValue, loc2Value) => {
+    // Check if latitude, longitude, and selectedOrigin are null
+    if (latitude === null || longitude === null || !selectedOrigin) {
+      alert("Enter or select an Origin");
+      return; // Exit the function early
+    }
+
+    // Check if selectedDestination is null
+    if (!selectedDestination) {
+      alert("Enter or select a Destination");
+      return; // Exit the function early
+    }
+
+    // If all conditions are met, close the popper
+    closePopper();
+    updateButtonClicked(true);
     const trip = {
       TripLegs: [
         {
@@ -300,7 +269,7 @@ const LocationLookup = ({
 
         <div className="searchBoxWrapper">
           <OriginAutocomplete
-             value={isGPSChecked ? selectedOrigin : ''}
+            value={isGPSChecked ? selectedOrigin : ""}
             onOriginSelected={handleOriginSelected}
             onChange={handleOriginChange}
             onInputChange={handleOriginInputChange}
@@ -410,13 +379,8 @@ const LocationLookup = ({
             </p>
           ) : tripResults && tripResults.TripDistance ? (
             <>
-              <p
-                style={{
-                  margin: "0.5rem 1rem",
-                  background: "#000",
-                  color: "white",
-                }}
-              >
+             
+              <p className="text-center mb-3 m-1 bg-black text-white border-b-2 border-gray-600">
                 Trip Distance: {tripResults.TripDistance}
               </p>
             </>
@@ -430,10 +394,6 @@ const LocationLookup = ({
 LocationLookup.propTypes = {
   onTripResults: PropTypes.func.isRequired,
   closePopper: PropTypes.func.isRequired,
-  // locationValue: PropTypes.string.isRequired,
-  // loc2Value: PropTypes.string.isRequired,
-  // setLocationValue: PropTypes.func.isRequired,
-  // setLoc2Value: PropTypes.func.isRequired,
 };
 
 export default LocationLookup;

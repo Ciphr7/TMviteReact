@@ -1,22 +1,20 @@
 import React, { useRef, useEffect, useState } from "react";
-import Box from "@mui/material/Box";
 import { CircularProgress } from "@mui/material";
 import GoogleMap from "./GoogleMap";
-import Popper from "@mui/material/Popper";
 import Button from "@mui/material/Button";
 import LocationLookup from "./LocationLookup";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import TripResults from "./TripResults";
-
 import FuelAverages from "./FuelAverages";
 import RouteIcon from "@mui/icons-material/Route";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import AnalyticsIcon from "@mui/icons-material/Analytics";
 import tmLogo from "../images/tmLogo.png";
+import PMO from "../images/pmo.png";  
+import FF from "../images/fuelfinder.png"      
 import Disclaimer from "./Disclaimer";
 import "./Footer.css";
-
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -196,7 +194,7 @@ const Footer = () => {
           <Button
             style={{
               background: "#3c3c3c",
-              padding: "2px 2px",
+              padding: "2px 1px",
               margin: "1px 1%",
               textDecoration: "none", // Remove underline from anchor tag
               color: "white", // Change text color
@@ -206,14 +204,10 @@ const Footer = () => {
             href="https://www.promiles.com/promiles-online/" // Set the URL you want to open
             target="_blank" // Open the URL in a new tab
           >
-            ProMiles Online
-            <LocalShippingIcon
-              style={{
-                background: "#3c3c3c",
-                padding: "2px 2px",
-                margin: "1px 1%",
-              }}
-            />
+            <p className="mx-1"> ProMiles Online</p>
+           
+         
+            <img className="h-10 pt-2 m-1" src={PMO} alt="" />
           </Button>
 
           <Button
@@ -229,14 +223,9 @@ const Footer = () => {
             href="https://www.promiles.com/fuel-finder/" // Set the URL you want to open
             target="_blank" // Open the URL in a new tab
           >
-            Fuel Finder
-            <LocalShippingIcon
-              style={{
-                background: "#3c3c3c",
-                padding: "2px 2px",
-                margin: "1px 1%",
-              }}
-            />
+            <p className="mx-1"> Fuel Finder</p>
+           
+            <img className="h-10 pt-2 m-1" src={FF} alt="" />
           </Button>
          
           <Dialog

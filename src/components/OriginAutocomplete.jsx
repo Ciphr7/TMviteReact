@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { CircularProgress, TextField, IconButton } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import { useTheme } from "@mui/material/styles";
+import { lookUpKey} from "./tmAPIKey";
 
 const OriginAutocomplete = ({
   onOriginSelected,
@@ -23,7 +24,7 @@ const OriginAutocomplete = ({
 
       try {
         const response = await fetch(
-          `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${value}&apikey=bU03MSs2UjZIS21HMG5QSlIxUTB4QT090`
+          `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${value}&${lookUpKey}`
         );
 
         if (!response.ok) {
@@ -101,7 +102,7 @@ const OriginAutocomplete = ({
           style: { backgroundColor: "white" }, // Set background color to white
           endAdornment: (
             <>
-              {loading ? <CircularProgress color="primary" size={10} /> : null}
+              {loading ? <CircularProgress color="primary" size={20} /> : null}
               {inputValue && (
                 <IconButton onClick={handleClear} size="small">
                   <ClearIcon />

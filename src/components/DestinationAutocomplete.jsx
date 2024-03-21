@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { CircularProgress, TextField, IconButton } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import { useTheme } from "@mui/material/styles";
+import { lookUpKey} from "./tmAPIKey";
 
 const DestinationAutocomplete = ({
   onDestinationSelected,
@@ -19,7 +20,7 @@ const DestinationAutocomplete = ({
 
       try {
         const response = await fetch(
-          `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${value}&apikey=bU03MSs2UjZIS21HMG5QSlIxUTB4QT090`
+          `https://prime.promiles.com/WebAPI/api/ValidateLocation?locationText=${value}&${lookUpKey}`
         );
 
         if (!response.ok) {
